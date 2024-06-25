@@ -615,6 +615,6 @@ function updateGraphVar(plasmaConcentration, volumeofDistribution, dialysateConc
     }
 
     else if (selectedVar === "Dialysate Volume"){
-        renderChart(volDialysate, "Dialysate Volume (L)", zoom, avg)
+        renderChart(volDialysate, "Dialysate Volume (mL)", zoom, avg)
     }
 }

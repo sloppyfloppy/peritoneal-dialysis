@@ -1,0 +1,203 @@
+h1 {
+    font-family: "Manrope", sans-serif;
+    font-size: 40px; /* Increase the font size */
+    font-weight: 700;
+    color: #000000; /* Change the text color */
+    line-height: 48px;
+    margin: 5px;
+    margin-bottom: 20px;
+
+}
+
+h2 {
+    font-family: "Manrope", sans-serif;
+    font-size: 30px; /* Increase the font size */
+    font-weight: 700;
+    color: #000000; /* Change the text color */
+    margin: 5px;
+    margin-bottom:10px;
+}
+
+body {
+    font-family: "Manrope", sans-serif;
+    font-weight: 400;
+    margin: 0px;
+    padding: 20px;
+}
+
+.input-container-dow {
+    margin-bottom: 5px;
+} 
+
+.days-of-week {
+    display: flex;
+    justify-content: space-between;
+    width: 98%;
+    flex-wrap: wrap;
+    margin-right: 20px;
+    margin-left: 5px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin-right: 14%; /* Adds space between the checkbox and label */
+    transform: scale(1.5)
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 1fr 2fr; /* Divide into two-thirds and one-third */
+    grid-gap: 20px; /* Add spacing between columns */
+}
+
+.container .input-container {
+    grid-column: span 1; /* Each input container spans one column */
+}
+
+.input-container-row {
+    display: flex; /* Use flexbox to create a row layout */
+    align-items: center; /* Align items vertically */
+    margin-bottom: 2px;
+    margin-left: 10px;
+    font-size: 15px;
+    padding: 5px;
+}
+
+.input-container-row label {
+    flex: 0 0 50%; /* Set width for the label */
+    margin-right: 15px; /* Add spacing between label and input */
+}
+
+.input-container-row input,
+.input-container-row textarea {
+    flex: 1; /* Expand input to fill remaining space */
+    padding: 2px;
+    font-size: 15px;
+    font-family: "Manrope", sans-serif;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+#Exchange input[type="number"], 
+#Exchange select {
+    box-sizing: border-box; /* Include padding and border in width calculation */
+    width: 100%; /* Make inputs and select menus fill the entire cell */
+    padding: 8px; /* Example padding */
+    font-size: 15px; /* Example font size */
+    border: 1px solid #ccc; /* Example border */
+    border-radius: 5px; /* Example border radius */
+    font-family: "Manrope", sans-serif;
+}
+
+/* Optional: Adjust specific styles as needed */
+#Exchange th,
+#Exchange td {
+    padding: 5px; /* Adjust padding for table cells */
+    text-align: center; /* Center align text */
+    vertical-align: middle; /* Align vertically centered */
+    font-size:15px;
+}
+
+.results-options-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.results-table{
+    width: 58%;
+}
+
+.graph-options{
+    width:38%
+}
+
+#results th,
+#results td {
+    padding: 5px; /* Adjust padding for table cells */
+    text-align: left; /* Center align text */
+    vertical-align: middle; /* Align vertically centered */
+    font-size:15px;
+    margin-left: 0px;
+}
+
+
+input[type="number"],
+
+textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.error {
+    color: #E76F51;
+    font-size: 14px;
+}
+
+table {
+    width: 100%;
+    margin-left: 5px;
+}
+
+table th {
+    width: 25%;
+    text-align: center;
+}
+
+table tr {
+    text-align: center;
+    width: 100%;
+}
+
+table input[type="text"],
+table input[type="number"],
+table textarea {
+    width: 100%; /* Adjust the width as needed */
+    box-sizing: border-box; /*Include padding and border in the width calculation */
+    height: 40px;
+
+}
+/* Adjust the width of the select element */
+table select {
+    width: 75%; /* Take up the full width of the td */
+}
+
+button {
+    padding: 13px 30px; 
+    font-size: 16px;
+    background-color: #264653;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px;
+    margin-right: 15px;
+    margin-top: 20px;
+}
+button:hover {
+    background-color: #264653;
+}
+
+.chart-container {
+    width: 100%;
+    height: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#chartCanvas {
+    width: 75%;
+    height: 75%;
+}
+
+
+

@@ -1,0 +1,23 @@
+{
+  "name": "peritoneal-dialysis",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "start": "npx http-server -p 8080"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sloppyfloppy/peritoneal-dialysis.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sloppyfloppy/peritoneal-dialysis/issues"
+  },
+  "homepage": "https://github.com/sloppyfloppy/peritoneal-dialysis#readme",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

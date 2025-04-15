@@ -6,68 +6,99 @@ function validateForm() {
         hasErrors = false;
     });
 
-    var deadNight = document.getElementById('deadNight').value;
-    var deadDay = document.getElementById('deadDay').value;
-    var ufNight = document.getElementById('ufNight').value;
-    var ufDay = document.getElementById('ufDay').value;
+    var age = document.getElementById('age').value;
+    var height = document.getElementById('height').value;
+    var weight = document.getElementById('weight').value;
+    var sex = document.getElementById('sex').value;
+    var pna = document.getElementById('pna').value;
+    var kru = document.getElementById('kru').value;
+    var solute = document.querySelector('input[name="solute"]:checked').value;
     var mtac = document.getElementById('mtac').value;
     var volume = document.getElementById('volume').value;
-    var gen = document.getElementById('gen').value;
-    kr = document.getElementById('kr').value;
+    var m_fluid_removal = document.getElementById('m_fluid_removal').value;
+    var a_fluid_removal = document.getElementById('a_fluid_removal').value;
+
     var days = document.querySelectorAll('input[name="day"]:checked');
     var hasErrors = false;
 
-    // Check deadNight
-    if (deadNight.trim() === '') {
-        document.getElementById('deadNightError').textContent = 'A number is required';
+    // Check age
+    if (age.trim() === '') {
+        document.getElementById('ageError').textContent = 'A number is required';
         hasErrors = true;
-    } else if (isNaN(deadNight)) {
-        document.getElementById('deadNightError').textContent = 'A number is required';
+    } else if (isNaN(age)) {
+        document.getElementById('ageError').textContent = 'A number is required';
         hasErrors = true;
-    } else if (deadNight < 0){
-        document.getElementById('deadNightError').textContent = 'Number has to be greater or equal to 0';
+    } else if (age < 0){
+        document.getElementById('ageError').textContent = 'Number has to be greater or equal to 0';
+        hasErrors = true;
+    } else if (age > 150){
+        document.getElementById('ageError').textContent = 'Number has to be smaller than 150. Make sure you are inputting for age';
         hasErrors = true;
     }
 
-    // Check deadDay
-    if (deadDay.trim() === '') {
-        document.getElementById('deadDayError').textContent = 'A number is required';
+    // Check height
+    if (height.trim() === '') {
+        document.getElementById('heightError').textContent = 'A number is required';
         hasErrors = true;
-    } else if (isNaN(deadDay)) {
-        document.getElementById('deadDayError').textContent = 'A number is required';
+    } else if (isNaN(height)) {
+        document.getElementById('heightError').textContent = 'A number is required';
         hasErrors = true;
-    } else if (deadDay < 0) {
-        document.getElementById('deadDayError').textContent = 'Number has to be greater or equal to 0';
+    } else if (height < 0) {
+        document.getElementById('heightError').textContent = 'Number has to be greater or equal to 0';
+        hasErrors = true;
+    } else if (height > 300) {0
+        document.getElementById('heightError').textContent = 'Number has to be smaller than 300, make sure input is in cm';
         hasErrors = true;
     }
     
-    // Check ufNight
-    if (ufNight.trim() === '') {
-        document.getElementById('ufNightError').textContent = 'A number is required';
+    // Check weight
+    if (weight.trim() === '') {
+        document.getElementById('weightError').textContent = 'A number is required';
         hasErrors = true;
-    } else if (isNaN(ufNight)) {
-        document.getElementById('ufNightError').textContent = 'A number is required';
+    } else if (isNaN(weight)) {
+        document.getElementById('weightError').textContent = 'A number is required';
         hasErrors = true;
-    } else if (ufNight < 0) {
-        document.getElementById('ufNightError').textContent = 'Number has to be greater or equal to 0';
+    } else if (weight < 0) {
+        document.getElementById('weightError').textContent = 'Number has to be greater or equal to 0';
         hasErrors = true;
-    }
-
-    // Check ufDay
-    if (ufDay.trim() === '') {
-        document.getElementById('ufDayError').textContent = 'A number is required';
-        hasErrors = true;
-    } else if (isNaN(ufDay)) {
-        document.getElementById('ufDayError').textContent = 'A number is required';
-        hasErrors = true;
-    } else if (ufDay < 0) {
-        document.getElementById('ufDayError').textContent = 'Number has to be greater or equal to 0';
+    } else if (weight > 700){
+        document.getElementById('weightError').textContent = 'Number has to be smaller than 700, make sure input is in kg';
         hasErrors = true;
     }
 
-    // Check if at least one day is selected
-    if (days.length === 0) {
-        document.getElementById('daysError').textContent = 'Please select at least one day';
+    // Check sex -- make sure that something has been selected
+    if (sex.trim() === '') {
+        document.getElementById('sexError').textContent = 'Please select a sex';
+        hasErrors = true;
+    }
+    
+    // Check pna
+    if (pna.trim() === '') {
+        document.getElementById('pnaError').textContent = 'A number is required';
+        hasErrors = true;
+    } else if (isNaN(pna)) {
+        document.getElementById('pnaError').textContent = 'A number is required';
+        hasErrors = true;
+    } else if (pna < 0) {
+        document.getElementById('pnaError').textContent = 'Number has to be greater or equal to 0';
+        hasErrors = true;
+    }
+
+    // Check kru
+    if (kru.trim() === '') {
+        document.getElementById('kruError').textContent = 'A number is required';
+        hasErrors = true;
+    } else if (isNaN(kru)) {
+        document.getElementById('kruError').textContent = 'A number is required';
+        hasErrors = true;
+    } else if (kru < 0) {
+        document.getElementById('kruError').textContent = 'Number has to be greater or equal to 0';
+        hasErrors = true;
+    }
+
+    // Check solute -- make sure something has been selected
+    if (solute.trim() === '') {
+        document.getElementById('soluteError').textContent = 'Please select a solute';
         hasErrors = true;
     }
 
@@ -95,29 +126,55 @@ function validateForm() {
         hasErrors = true;
     }
 
-    // Check gen 
-    if (gen.trim() === '') {
-        document.getElementById('genError').textContent = 'A number is required';
+    // Check m_fluid_removal
+    if (m_fluid_removal.trim() === '') {
+        document.getElementById('mFluidRemovalError').textContent = 'A number is required';
         hasErrors = true;
-    } else if (isNaN(gen)) {
-        document.getElementById('genError').textContent = 'A number is required';
+    } else if (isNaN(m_fluid_removal)) {
+        document.getElementById('mFluidRemovalError').textContent = 'A number is required';
         hasErrors = true;
-    } else if (gen < 0) {
-        document.getElementById('genError').textContent = 'Number has to be greater or equal to 0';
+    } else if (m_fluid_removal < 0) {
+        document.getElementById('mFluidRemovalError').textContent = 'Number has to be greater or equal to 0';
         hasErrors = true;
     }
 
-    // Check kr
-    if (kr.trim() === '') {
-        document.getElementById('krError').textContent = 'A number is required';
+    // Check a_fluid_removal
+    if (a_fluid_removal.trim() === '') {
+        document.getElementById('aFluidRemovalError').textContent = 'A number is required';
         hasErrors = true;
-    } else if (isNaN(kr)) {
-        document.getElementById('krError').textContent = 'A number is required';
+    } else if (isNaN(a_fluid_removal)) {
+        document.getElementById('aFluidRemovalError').textContent = 'A number is required';
         hasErrors = true;
-    } else if (kr < 0) {
-        document.getElementById('krError').textContent = 'Number has to be greater or equal to 0';
+    } else if (a_fluid_removal < 0) {
+        document.getElementById('aFluidRemovalError').textContent = 'Number has to be greater or equal to 0';
         hasErrors = true;
     }
+
+    // Check if at least one day is selected
+    if (days.length === 0) {
+        document.getElementById('daysError').textContent = 'Please select at least one day';
+        hasErrors = true;
+    }
+
+    // Check time 
+    let total = 0;
+    // Select all inputs whose id starts with "exTime"
+    const timeInputs = document.querySelectorAll("input[id^='exTime']");
+    timeInputs.forEach(function(input) {
+        const value = parseFloat(input.value);
+        if (!isNaN(value)) {
+        total += value;
+        }
+    });
+    
+    // Get the error message container
+    const errorMessage = document.getElementById('timeError');
+    
+    // Check if the total time is 24 or not.
+    if (total !== 24) {
+        errorMessage.textContent = "The total time must add up to 24 hours (currently " + total + " hours).";
+        hasErrors = true;
+    } 
 
     if (!hasErrors){
         submitForm();
@@ -224,14 +281,9 @@ async function submitForm() {
 
 function defaultInput() {
 
-    var deadNight = 0.25;
-    var deadDay = 0.25;
-    var ufNight = 0.9;
-    var ufDay = 0.3;
     var mtac = 19.09;
     var volume = 42;
-    var gen = 8000;
-    var kr = 2;
+
 
     var checkboxes = document.querySelectorAll('.days-of-week input[type="checkbox"]');
         checkboxes.forEach(function(checkbox) {
@@ -240,23 +292,14 @@ function defaultInput() {
     var days = document.querySelectorAll('input[name="day"]:checked');
     volumeData = [2.5, 2.5, 2.5, 2, 2.3];
     timeData = [2.67, 2.67, 2.66, 12, 4];
-    schemeData = ["Night", "Night", "Night", "Day", "Day"];
-
-    var totDayTime = 16;
-    var totNightTime = 8;
+    schemeData = ["M", "M", "M", "A", "A"];
 
     displayDefaultValues(deadNight, deadDay, ufNight, ufDay, mtac, volume, gen, kr);
 }
 
 function displayDefaultValues(deadNight, deadDay, ufNight, ufDay, mtac, volume, gen, kr){
-    document.getElementById('deadNight').value = deadNight;
-    document.getElementById('deadDay').value = deadDay;
-    document.getElementById('ufNight').value = ufNight;
-    document.getElementById('ufDay').value = ufDay;
     document.getElementById('mtac').value = mtac;
     document.getElementById('volume').value = volume;
-    document.getElementById('gen').value = gen;
-    document.getElementById('kr').value = kr;
 
     // Set default values for volumeData, timeData, and schemeData
     for (var i = 0; i < volumeData.length; i++) {
@@ -418,6 +461,19 @@ function pdCalculator(deadNight, deadDay, ufNight, ufDay, volumeData, timeData, 
                             netMovtIn[t] = gen - excretion[t]
                             t = t + 1
                         }
+                    }
+
+                    while (t < (day + 1) * (24 * 60)){
+                        volumeofDistribution[t] = volumeofDistribution[t - 1] + (volume_intake)/1000
+                        volDialysate[t] = 0
+                        plasmaConcentration[t] = ((plasmaConcentration[t - 1] * 10 * volumeofDistribution[t-1]) + netMovtIn[t - 1])/(volumeofDistribution[t] * 10)
+                        amountDialysate[t] = 0
+                        dialysateConcentration[t] = 0
+                        plasmaToDialysate[t] = 0
+                        amountBody[t] = amountBody[t-1] * netMovtIn[t - 1]
+                        excretion[t] = plasmaConcentration[t] * kr / 100
+                        netMovtIn[t] = gen - excretion[t]
+                        t = t + 1
                     }
                 }   
             }

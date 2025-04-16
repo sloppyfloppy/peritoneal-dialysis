@@ -1,3 +1,102 @@
+function setupEventListeners() {
+    // Attach change event to all solute radio buttons
+    document.querySelectorAll('input[name="solute"]').forEach(radio => {
+      radio.addEventListener('change', populateSoluteValues);
+    });
+
+    document.getElementById('weight').addEventListener('input', populateSoluteValues);
+    document.getElementById('height').addEventListener('input', populateSoluteValues);
+    document.getElementById('sex').addEventListener('change', populateSoluteValues);
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    setupEventListeners();
+    // Call the function immediately to populate defaults
+    populateSoluteValues();
+});
+
+
+function computeVolume(weight, height, sex) {
+    const weightError = document.getElementById('weightError');
+    const heightError = document.getElementById('heightError');
+    const sexError = document.getElementById('sexError');
+
+    weightError.textContent = '';
+    heightError.textContent = '';
+    sexError.textContent = '';
+
+    if (!weight){
+        weightError.textContent = 'A number is required';
+        return "";
+    }
+    if (!height){
+        heightError.textContent = 'A number is required';
+        return "";
+    }
+    if (sex != "M" && sex != "F"){
+        sexError.textContent = 'A number is required';
+        return "";
+    }
+
+    weight = parseFloat(weight);
+    height = parseFloat(height);
+    
+    if (sex === 'M') {
+      return (0.194786 * height + 0.296785 * weight - 14.012934);
+    } else if (sex === 'F') {
+      return (0.34454 * height + 0.183809 * weight - 35.270121);
+    } else {
+      return '';
+    }
+}
+
+
+function populateSoluteValues() {
+    const soluteData = {
+        urea: {
+          mtac: 23,         // Default MTAC for Urea
+        },
+        creatinine: {
+          mtac: 12,         // Default MTAC for Creatinine
+        },
+        other: {
+          mtac: '',         // No default value for 'other'
+          volume: ''        // No default value for 'other'
+        }
+    };
+       
+    const selectedRadio = document.querySelector('input[name="solute"]:checked');
+    if (!selectedRadio) return; 
+  
+    const selectedSolute = selectedRadio.value;
+    document.getElementById('mtac').value = soluteData[selectedSolute].mtac;
+    document.getElementById('volume').value = soluteData[selectedSolute].volume;
+
+    const weight = document.getElementById('weight').value;
+    const height = document.getElementById('height').value;
+    const sex = document.getElementById('sex').value; 
+    
+    const volumeField = document.getElementById('volume');
+
+    if (selectedSolute === 'urea' || selectedSolute === 'creatinine') {
+        const computedVolume = computeVolume(weight, height, sex);
+        volumeField.value = computedVolume;
+    } else {
+        // For 'other', clear the volume field (or leave as user-set)
+        volumeField.value = soluteData[selectedSolute].volume;
+    }
+    
+    // If 'other' is selected, display a message prompting the user to enter custom values.
+    const errorDiv = document.getElementById('soluteError');
+    if (selectedSolute === 'other') {
+      errorDiv.textContent = "Please enter custom MTAC and Volume values for 'Other'.";
+    } else {
+      errorDiv.textContent = "";
+    }
+}
+  
+
 function validateForm() {
 
     // Clear previous error messages
@@ -35,7 +134,6 @@ function validateForm() {
         document.getElementById('ageError').textContent = 'Number has to be smaller than 150. Make sure you are inputting for age';
         hasErrors = true;
     }
-
     // Check height
     if (height.trim() === '') {
         document.getElementById('heightError').textContent = 'A number is required';
@@ -171,8 +269,8 @@ function validateForm() {
     const errorMessage = document.getElementById('timeError');
     
     // Check if the total time is 24 or not.
-    if (total !== 24) {
-        errorMessage.textContent = "The total time must add up to 24 hours (currently " + total + " hours).";
+    if (total > 24) {
+        errorMessage.textContent = "The total time cannot be over 24 hours (currently " + total + " hours).";
         hasErrors = true;
     } 
 
@@ -181,15 +279,19 @@ function validateForm() {
     }
 }
 
+
 async function submitForm() {
-    var deadNight = parseFloat(document.getElementById('deadNight').value);
-    var deadDay = parseFloat(document.getElementById('deadDay').value);
-    var ufDay = parseFloat(document.getElementById('ufDay').value);
-    var ufNight = parseFloat(document.getElementById('ufNight').value);
+    var age = parseFloat(document.getElementById('age').value);
+    var height = parseFloat(document.getElementById('height').value);
+    var weight = parseFloat(document.getElementById('weight').value);
+    var sex = parseFloat(document.getElementById('sex').value);
+    var kru = parseFloat(document.getElementById('kru').value);
+    var solute = parseFloat(document.getElementById('solute').value);
     var mtac = parseFloat(document.getElementById('mtac').value);
     var volume = parseFloat(document.getElementById('volume').value);
-    var gen = parseFloat(document.getElementById('gen').value);
-    var kr = parseFloat(document.getElementById('kr').value);
+
+    var m_fluid_removal = parseFloat(document.getElementById('m_fluid_removal').value);
+    var a_fluid_removal = parseFloat(document.getElementById('a_fluid_removal').value);
     var days = Array.from(document.querySelectorAll('input[name="day"]:checked')).map(day => day.value);
 
     var volumeData = [];
@@ -239,10 +341,10 @@ async function submitForm() {
             if (schemeValue != 'None'){ // If it's a valid float
                 schemeData.push(schemeValue); // Push the float value into the volumeData array
             }
-            if (schemeValue == "Night"){
+            if (schemeValue == "A"){
                 totNightTime = totNightTime + timeValue - deadNight;
             }
-            else if (schemeValue == "Day"){
+            else if (schemeValue == "M"){
                 totDayTime = totDayTime + timeValue - deadDay;
             }
         }
@@ -279,51 +381,54 @@ async function submitForm() {
     }
 }
 
+
 function defaultInput() {
 
-    var mtac = 19.09;
-    var volume = 42;
-
+    var age = 50;
+    var weight = 81;
+    var height = 175;
+    var sex = "M";
 
     var checkboxes = document.querySelectorAll('.days-of-week input[type="checkbox"]');
         checkboxes.forEach(function(checkbox) {
             checkbox.checked = true;
     });
-    var days = document.querySelectorAll('input[name="day"]:checked');
-    volumeData = [2.5, 2.5, 2.5, 2, 2.3];
-    timeData = [2.67, 2.67, 2.66, 12, 4];
-    schemeData = ["M", "M", "M", "A", "A"];
 
-    displayDefaultValues(deadNight, deadDay, ufNight, ufDay, mtac, volume, gen, kr);
+    var days = document.querySelectorAll('input[name="day"]:checked');
+
+    volumeData = [2, 2, 2, 2];
+    timeData = [2.25, 2.25, 2.25, 12.25];
+    schemeData = ["A", "A", "A", "M"];
+
+    var m_fluid_removal = 200;
+    var a_fluid_removal = 800;
+
+    displayDefaultValues(age, weight, height, sex, volume, days, volumeData, timeData, schemeData, m_fluid_removal, a_fluid_removal);
+
+    const defaultSolute = document.querySelector('input[name="solute"][value="urea"]');
+    if (defaultSolute) {
+        defaultSolute.checked = true;
+        populateSoluteValues();
+    }
+
+    const selectedSolute = document.querySelector('input[name="solute"]:checked').value
 }
 
-function displayDefaultValues(deadNight, deadDay, ufNight, ufDay, mtac, volume, gen, kr){
+
+function displayDefaultValues(age, weight, height, sex, volume, days, volumeData, timeData, schemeData, m_fluid_removal, a_fluid_removal){
     document.getElementById('mtac').value = mtac;
     document.getElementById('volume').value = volume;
-
+    document.getElementById('age').value = age;
+    document.getElementById('weight').value = weight;
+    document.getElementById('height').value = height;
+    document.getElementById('sex').value = sex;
+    
     // Set default values for volumeData, timeData, and schemeData
     for (var i = 0; i < volumeData.length; i++) {
         document.getElementById('exVolume ' + (i + 1)).value = volumeData[i];
         document.getElementById('exTime ' + (i + 1)).value = timeData[i];
         document.getElementById('exScheme ' + (i + 1)).value = schemeData[i];
     }
-}
-
-
-function defaultAddInfo(){
-    var mtac = 19.09;
-    var volume = 42;
-    var gen = 8000;
-    var kr = 0;
-    displayDefaultAddInfoValues(mtac, volume, gen, kr)
-}
-
-
-function displayDefaultAddInfoValues(mtac, volume, gen, kr){
-    document.getElementById('mtac').value = mtac;
-    document.getElementById('volume').value = volume;
-    document.getElementById('gen').value = gen;
-    document.getElementById('kr').value = kr;
 }
 
 
@@ -511,7 +616,6 @@ function pdCalculator(deadNight, deadDay, ufNight, ufDay, volumeData, timeData, 
 }
 
 
-
 function renderChart(dataSet, name, zoom, average) {
     // Set default options for all charts
     Chart.defaults.font.size = 15;
@@ -640,6 +744,7 @@ function updateNumerical(plasmaConcentration, peakConcentration, gen, volumeofDi
     document.getElementById('avgVolume').innerText = avgVol.toFixed(2);
 
 }
+
 
 function updateGraphVar(plasmaConcentration, volumeofDistribution, dialysateConcentration, volDialysate){
     var selectedVar = document.querySelector('input[name="variable"]:checked').value;

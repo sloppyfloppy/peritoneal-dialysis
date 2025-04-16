@@ -87,6 +87,16 @@ label {
     margin-bottom: 5px;
 }
 
+.solute-container {
+    display: flex; /* Use flexbox to create a row layout */
+    align-items: center; /* Align items vertically */
+    margin-bottom: 2px;
+    margin-left: 10px;
+    font-size: 15px;
+    padding: 5px;
+    justify-content: space-evenly;
+}
+
 #Exchange input[type="number"], 
 #Exchange select {
     box-sizing: border-box; /* Include padding and border in width calculation */
@@ -141,6 +151,18 @@ textarea {
 .error {
     color: #E76F51;
     font-size: 14px;
+    margin-left: 10px;
+    padding: 5px;
+    margin-bottom: 2px;
+    text-align: right;
+}
+
+.error_left {
+    color: #E76F51;
+    font-size: 14px;
+    padding: 5px;
+    margin-bottom: 2px;
+    text-align: left;
 }
 
 table {

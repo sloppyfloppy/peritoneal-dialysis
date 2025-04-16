@@ -4,7 +4,7 @@
   "description": "",
   "main": "script.js",
   "scripts": {
-    "start": "npx http-server -p 8080"
+    "start": "http-server -p 8080"
   },
   "repository": {
     "type": "git",

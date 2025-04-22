@@ -82,6 +82,16 @@ body {
     border-radius: 5px;
 }
 
+.select-info {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    background-color: #f9f9f9;
+    box-sizing: border-box;
+}
+
 label {
     display: block;
     margin-bottom: 5px;

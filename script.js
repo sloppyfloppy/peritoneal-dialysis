@@ -81,7 +81,7 @@ function populateSoluteValues() {
 
     if (selectedSolute === 'urea' || selectedSolute === 'creatinine') {
         const computedVolume = computeVolume(weight, height, sex);
-        volumeField.value = computedVolume;
+        volumeField.value = computedVolume.toFixed(2);
     } else {
         // For 'other', clear the volume field (or leave as user-set)
         volumeField.value = soluteData[selectedSolute].volume;
@@ -356,7 +356,6 @@ async function submitForm() {
         }
     }
     try {
-        var gen = 8000/1440;
         const [plasmaConcentration, volumeofDistribution, peakConcentration, dialysateConcentration, volDialysate] = await pdCalculator(kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_removal, volumeData, timeData, schemeData, days, totATime, totMTime, totalExchangeTime);
         updateGraphVar(plasmaConcentration, volumeofDistribution, dialysateConcentration, volDialysate)
         updateNumerical(plasmaConcentration, peakConcentration, gen, volumeofDistribution)

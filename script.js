@@ -356,7 +356,7 @@ async function submitForm() {
         }
     }
     try {
-        const [plasmaConcentration, volumeofDistribution, peakConcentration, dialysateConcentration, volDialysate] = await pdCalculator(kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_removal, volumeData, timeData, schemeData, days, totATime, totMTime, totalExchangeTime);
+        const [plasmaConcentration, volumeofDistribution, peakConcentration, dialysateConcentration, volDialysate, gen] = await pdCalculator(kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_removal, volumeData, timeData, schemeData, days, totATime, totMTime, totalExchangeTime);
         updateGraphVar(plasmaConcentration, volumeofDistribution, dialysateConcentration, volDialysate)
         updateNumerical(plasmaConcentration, peakConcentration, gen, volumeofDistribution)
 
@@ -598,6 +598,26 @@ function pdCalculator(kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_r
                 }
             }
 
+            // let's say monday is not selected, need to initialize time stamp 0
+            if (day == 0 && !days.includes(daysOfWeek[day])){
+                plasmaConcentration[t] = initial_Concentration;
+                volumeofDistribution[t] = volume;
+
+                plasmaToDialysateDiffusion[t] = 0;
+                plasmaToDialysateConvection[t] = 0;
+                plasmaToDialysate[t] = 0;
+
+                volDialysate[t] = deadVolumeDialysate;
+                amountDialysate[t] = volDialysate[t] / 100 * plasmaConcentration[t];
+                dialysateConcentration[t] = amountDialysate[t] / volDialysate[t] * 100;
+        
+                amountBody[t] = plasmaConcentration[t] * volume * 10;
+                excretion[t] = plasmaConcentration[t] * kru / 100;
+                netMovtIn[t] = gen - excretion[t] - plasmaToDialysate[t];
+
+                t += 1;
+            }
+
             while (t < (day + 1) * (24 * 60)){
                 plasmaToDialysateDiffusion[t] = 0;
                 plasmaToDialysateConvection[t] = 0;
@@ -631,7 +651,7 @@ function pdCalculator(kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_r
         console.warn("pdCalculator: reached maximum iterations without converging");
     }
     
-    return ([plasmaConcentration, volumeofDistribution, peakConcentration, dialysateConcentration, volDialysate])                  
+    return ([plasmaConcentration, volumeofDistribution, peakConcentration, dialysateConcentration, volDialysate, gen])                  
 }
 
 

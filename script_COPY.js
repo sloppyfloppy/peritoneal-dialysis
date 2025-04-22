@@ -98,7 +98,7 @@ function populateSoluteValues() {
   
 
 function validateForm() {
-    console.log("FORM IS BEING VALIDATED")
+
     // Clear previous error messages
     document.querySelectorAll('.error').forEach(function(error) {
         error.textContent = '';
@@ -289,7 +289,7 @@ async function submitForm() {
     var weight = parseFloat(document.getElementById('weight').value);
     var sex = parseFloat(document.getElementById('sex').value);
     var kru = parseFloat(document.getElementById('kru').value);
-    var solute = document.querySelector('input[name="solute"]:checked').value
+    var solute = parseFloat(document.getElementById('solute').value);
     var mtac = parseFloat(document.getElementById('mtac').value);
     var volume = parseFloat(document.getElementById('volume').value);
     var pna = parseFloat(document.getElementById('pna').value);
@@ -305,6 +305,7 @@ async function submitForm() {
     var totMTime = 0;
     var deadTime = 0.25; //hours
     var totalExchangeTime = 0;
+
     for (var i = 1; i <= 7; i++) {
         // Construct the ID for the current element
 
@@ -318,7 +319,7 @@ async function submitForm() {
             // Parse the element's text content into a float value and push it into the volumeData array
             // Check if the parsed value is a valid float
             if (volumeValue != 0){ // If it's a valid float
-                volumeData.push(volumeValue * 1000); // Push the float value into the volumeData array
+                volumeData.push(volumeValue); // Push the float value into the volumeData array
             }
         }
 
@@ -356,7 +357,7 @@ async function submitForm() {
         }
     }
     try {
-        var gen = 8000/1440;
+    
         const [plasmaConcentration, volumeofDistribution, peakConcentration, dialysateConcentration, volDialysate] = await pdCalculator(kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_removal, volumeData, timeData, schemeData, days, totATime, totMTime, totalExchangeTime);
         updateGraphVar(plasmaConcentration, volumeofDistribution, dialysateConcentration, volDialysate)
         updateNumerical(plasmaConcentration, peakConcentration, gen, volumeofDistribution)
@@ -408,10 +409,8 @@ function defaultInput() {
 
     var m_fluid_removal = 200;
     var a_fluid_removal = 800;
-    var pna = 78;
-    var kru = 2;
 
-    displayDefaultValues(age, weight, height, sex, volume, volumeData, timeData, schemeData, m_fluid_removal, a_fluid_removal, pna, kru);
+    displayDefaultValues(age, weight, height, sex, volume, days, volumeData, timeData, schemeData, m_fluid_removal, a_fluid_removal);
 
     const defaultSolute = document.querySelector('input[name="solute"][value="urea"]');
     if (defaultSolute) {
@@ -423,17 +422,13 @@ function defaultInput() {
 }
 
 
-function displayDefaultValues(age, weight, height, sex, volume, volumeData, timeData, schemeData, m_fluid_removal, a_fluid_removal, pna, kru){
+function displayDefaultValues(age, weight, height, sex, volume, days, volumeData, timeData, schemeData, m_fluid_removal, a_fluid_removal){
     document.getElementById('mtac').value = mtac;
     document.getElementById('volume').value = volume;
     document.getElementById('age').value = age;
     document.getElementById('weight').value = weight;
     document.getElementById('height').value = height;
     document.getElementById('sex').value = sex;
-    document.getElementById('m_fluid_removal').value = m_fluid_removal;
-    document.getElementById('a_fluid_removal').value = a_fluid_removal;
-    document.getElementById('pna').value = pna;
-    document.getElementById('kru').value = kru;
     
     // Set default values for volumeData, timeData, and schemeData
     for (var i = 0; i < volumeData.length; i++) {
@@ -446,19 +441,12 @@ function displayDefaultValues(age, weight, height, sex, volume, volumeData, time
 
 function pdCalculator(kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_removal, volumeData, timeData, schemeData, days, totATime, totMTime){
     
-    if (solute == "urea"){
-        kru = kru / 1.08;
-    }
-    else if (solute == "creatinine"){
-        kru = kru * 2 / 1.08;
-    }
-    
-    var gen = ((pna - 7.17)/8.68 * 1000) / 1440; // tentative formula to get gen per minute
+    gen = ((pna / 6) - 2) / 1440; // tentative formula to get gen per minute
 
     var numExchange = volumeData.length;
     var numOfTreatment = days.length;
     
-    var deadTime = 0.25; // dead time = 15 minutes
+    var deadTime = 15; // dead time = 15 minutes
     var deadVolumeDialysate = 150; // dead volume dialysate = 150 mL
 
     let plasmaConcentration = new Array(7 * 24 * 60).fill(0);
@@ -473,18 +461,21 @@ function pdCalculator(kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_r
     let amountBody = new Array(7 * 24 * 60).fill(0);
     let netMovtIn = new Array(7 * 24 * 60).fill(0);
     let excretion = new Array(7 * 24 * 60).fill(0);
-    let coverbar = new Array(7 * 24 * 60).fill(0);
 
     let initial_equilibrium_tolerance = 0.001;
     let initial_steady_state = 0;
     let initial_Concentration = 1;
-    let t = 0;
+    let t = 1;
     let peak_index = 0;
 
+    var totalExchangeTime = 0;
+    var totalEffectiveTime = 0;
     var totalAEffectiveTime = 0;
     var totalMEffectiveTime = 0;
 
     for (let k = 0; k < numExchange; k ++){
+        totalExchangeTime += timeData[i]; // this total exchange time includes the dead time
+        effectiveTime += timeData[i] - deadTime;
         if(schemeData[k] == "M"){
             totalMEffectiveTime += timeData[k] - deadTime;
         }
@@ -493,145 +484,169 @@ function pdCalculator(kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_r
         }
     }
 
-    var volume_intake = (m_fluid_removal + a_fluid_removal)/1440;
-    var fluidARemovalRate = a_fluid_removal/(totalAEffectiveTime * 60);
-    var fluidMRemovalRate = m_fluid_removal/(totalMEffectiveTime * 60);
+    var fluidAddedPerTime = (m_fluid_removal + a_fluid_removal)/1440;
+    var fluidARemovalRate = a_fluid_removal/totalAEffectiveTime;
+    var fluidMRemovalRate = m_fluid_removal/totalMEffectiveTime;
 
     var beta = 0;
-    var uf = 0;
-    var f = 0;
     
     var daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     
-    const max_iter = 1000;
-    let iterCount = 0;
-    mtac = 19.09;
-    while (initial_steady_state == 0 && iterCount++ < max_iter) {
+    while (initial_steady_state == 0) {
+        plasmaConcentration[0] = initial_Concentration;
+        volumeofDistribution[0] = volume;
+        volDialysate[0] = deadVolumeDialysate + volumeData[0];
+        amountDialysate[0] = volDialysate[0] / 100 * plasmaConcentration[0];
+        amountBody[0] = plasmaConcentration[0] * volume * 10;
+        dialysateConcentration[0] = amountDialysate[0] / volDialysate[0] * 100;
+        plasmaToDialysateDiffusion[0] = (plasmaConcentration[0] - dialysateConcentration[0])*mtac/100;
+
+        excretion[0] = plasmaConcentration[0] * kru / 100;
+        netMovtIn[0] = gen - excretion[0] - plasmaToDialysate[0];
+
+        // Above here is tested and should run ok - June 22nd
         for (let day = 0; day < 7; day++) {
             if (days.includes(daysOfWeek[day])) {
                 for (let exchange = 0; exchange < numExchange; exchange++){
-                    if (schemeData[exchange] == "M"){
-                        uf = fluidMRemovalRate;
-                    }
-                    else{
-                        uf = fluidARemovalRate;
-                    }
-                    beta = uf / mtac;
-                    f = (1 / beta) - (1 / (Math.exp(beta) - 1));
+                    if (schemeData[exchange] == "M") {
+                        peakConcentration[peak_index] = plasmaConcentration[t - 1]
+                        peak_index = peak_index + 1
+                        
+                        duration = (timeData[exchange] - deadNight) * 60
+                        initialTime = t
+                        
+                        // Above here is tested and should run ok - June 22nd
 
-                    var effectiveTime = (timeData[exchange] - deadTime) * 60;
-                    var totalTime = timeData[exchange] * 60;
-                    initialTime = t;
+                        if (initialTime != 1){  
+                            volumeofDistribution[t] = volumeofDistribution[t - 1] + (volume_intake - fluidAddedNight)/1000
+                            volDialysate[t] = volumeData[exchange] * 1000
+                            plasmaConcentration[t] = ((plasmaConcentration[t - 1] * 10 * volumeofDistribution[t-1]) + netMovtIn[t - 1])/(volumeofDistribution[t] * 10)
+                            amountDialysate[t] = 0
+                            dialysateConcentration[t] = 0
+                            plasmaToDialysate[t] = (plasmaConcentration[t] - dialysateConcentration[t])*mtac/100
+                            amountBody[t] = amountBody[t-1] * netMovtIn[t - 1]
+                            excretion[t] = plasmaConcentration[t] * kr / 100
+                            netMovtIn[t] = gen - excretion[t] - plasmaToDialysate[t]
+                            t = t + 1
+                        }
+                        while (t < (initialTime + duration)){
+                            volumeofDistribution[t] = volumeofDistribution[t - 1] + (volume_intake - fluidAddedNight)/1000
+                            volDialysate[t] = volDialysate[t - 1] + fluidAddedNight
+                            plasmaConcentration[t] = ((plasmaConcentration[t - 1] * 10 * volumeofDistribution[t-1]) + netMovtIn[t - 1])/(volumeofDistribution[t] * 10)
+                            amountDialysate[t] = amountDialysate[t - 1] + plasmaToDialysate[t - 1]
+                            dialysateConcentration[t] = amountDialysate[t] / volDialysate[t] * 100
+                            plasmaToDialysate[t] = (plasmaConcentration[t] - dialysateConcentration[t])*mtac/100
+                            amountBody[t] = amountBody[t-1] * netMovtIn[t - 1]
+                            excretion[t] = plasmaConcentration[t] * kr / 100
+                            netMovtIn[t] = gen - excretion[t] - plasmaToDialysate[t]
+                            t = t + 1
+                        }
 
-                    // start of a day
-                    if (t == 0){
-                        plasmaConcentration[t] = initial_Concentration;
-                        volumeofDistribution[t] = volume;
-                        volDialysate[t] = deadVolumeDialysate + volumeData[exchange];
-                        amountDialysate[t] = deadVolumeDialysate / 100 * plasmaConcentration[t];
-                        amountBody[t] = plasmaConcentration[t] * volume * 10;
-                        dialysateConcentration[t] = amountDialysate[t] / volDialysate[t] * 100;
-                        plasmaToDialysateDiffusion[t] = (plasmaConcentration[t] - dialysateConcentration[t])* mtac / 100;
-                        plasmaToDialysateConvection[t] = (plasmaConcentration[t] - f * (plasmaConcentration[t] - dialysateConcentration[t])) * uf / 100;
-                        plasmaToDialysate[t] = plasmaToDialysateDiffusion[t] + plasmaToDialysateConvection[t];
-                        excretion[t] = plasmaConcentration[t] * kru / 100;
-                        netMovtIn[t] = gen - excretion[t] - plasmaToDialysate[t];
-
-                        peakConcentration[peak_index] = plasmaConcentration[t];
-                        peak_index += 1;
-
-                        t += 1;
-                    }
-
-                    // reset from dead time
-                    else{
-                        volumeofDistribution[t] = volumeofDistribution[t - 1] + (volume_intake - uf)/1000;
-                        volDialysate[t] = deadVolumeDialysate + volumeData[exchange];
-                        amountDialysate[t] = amountDialysate[t - 1] + plasmaToDialysate[t - 1];
-                        plasmaConcentration[t] = ((plasmaConcentration[t - 1] * 10 * volumeofDistribution[t-1]) + netMovtIn[t - 1])/(volumeofDistribution[t] * 10);
-                        dialysateConcentration[t] = amountDialysate[t] / volDialysate[t] * 100;
-                        plasmaToDialysateDiffusion[t] = (plasmaConcentration[t] - dialysateConcentration[t])* mtac / 100;
-                        plasmaToDialysateConvection[t] = (plasmaConcentration[t] - f * (plasmaConcentration[t] - dialysateConcentration[t])) * uf / 100;
-                        plasmaToDialysate[t] = plasmaToDialysateDiffusion[t] + plasmaToDialysateConvection[t];
-                        amountBody[t] = amountBody[t - 1] * netMovtIn [t - 1];
-                        excretion[t] = plasmaConcentration[t] * kru / 100;
-                        netMovtIn[t] = gen - excretion[t] - plasmaToDialysate[t];
-
-                        peakConcentration[peak_index] = plasmaConcentration[t - 1];
-                        peak_index += 1;
-                        t += 1;
+                        while (t >= (initialTime + duration) && t < (initialTime + timeData[exchange] * 60)) {
+                            volumeofDistribution[t] = volumeofDistribution[t - 1] + (volume_intake)/1000
+                            volDialysate[t] = 0
+                            plasmaConcentration[t] = ((plasmaConcentration[t - 1] * 10 * volumeofDistribution[t-1]) + netMovtIn[t - 1])/(volumeofDistribution[t] * 10)
+                            amountDialysate[t] = 0
+                            dialysateConcentration[t] = 0
+                            plasmaToDialysate[t] = 0
+                            amountBody[t] = amountBody[t-1] * netMovtIn[t - 1]
+                            excretion[t] = plasmaConcentration[t] * kr / 100
+                            netMovtIn[t] = gen - excretion[t]
+                            t = t + 1
+                        }
                     }
 
-                    // doing an exchange
-                    while (t < (initialTime + effectiveTime)){
-                        volumeofDistribution[t] = volumeofDistribution[t - 1] + (volume_intake - uf)/1000;
-                        volDialysate[t] = volDialysate[t - 1] + uf;
-                        amountDialysate[t] = amountDialysate[t - 1] + plasmaToDialysate[t - 1];
-                        plasmaConcentration[t] = ((plasmaConcentration[t - 1] * 10 * volumeofDistribution[t-1]) + netMovtIn[t - 1])/(volumeofDistribution[t] * 10);
-                        dialysateConcentration[t] = amountDialysate[t] / volDialysate[t] * 100;
-                        plasmaToDialysateDiffusion[t] = (plasmaConcentration[t] - dialysateConcentration[t])* mtac / 100;
-                        plasmaToDialysateConvection[t] = (plasmaConcentration[t] - f * (plasmaConcentration[t] - dialysateConcentration[t])) * uf / 100;
-                        plasmaToDialysate[t] = plasmaToDialysateDiffusion[t] + plasmaToDialysateConvection[t];
-                        amountBody[t] = amountBody[t - 1] * netMovtIn [t - 1];
-                        excretion[t] = plasmaConcentration[t] * kru / 100;
-                        netMovtIn[t] = gen - excretion[t] - plasmaToDialysate[t];
+                    if (schemeData[exchange] == "Day") {
+                        peakConcentration[peak_index] = plasmaConcentration[t - 1]
+                        peak_index = peak_index + 1
+                        
+                        duration = (timeData[exchange] - deadDay) * 60
+                        initialTime = t
+                        
+                        if (initialTime != 1){  
+                            volumeofDistribution[t] = volumeofDistribution[t - 1] + (volume_intake - fluidAddedDay)/1000
+                            volDialysate[t] = volumeData[exchange] * 1000
+                            plasmaConcentration[t] = ((plasmaConcentration[t - 1] * 10 * volumeofDistribution[t-1]) + netMovtIn[t - 1])/(volumeofDistribution[t] * 10)
+                            amountDialysate[t] = 0
+                            dialysateConcentration[t] = 0
+                            plasmaToDialysate[t] = (plasmaConcentration[t] - dialysateConcentration[t])*mtac/100
+                            amountBody[t] = amountBody[t-1] * netMovtIn[t - 1]
+                            excretion[t] = plasmaConcentration[t] * kr / 100
+                            netMovtIn[t] = gen - excretion[t] - plasmaToDialysate[t]
+                            t = t + 1
+                        }
+                        
+                        while (t < (initialTime + duration)){
+                            volumeofDistribution[t] = volumeofDistribution[t - 1] + (volume_intake - fluidAddedDay)/1000
+                            volDialysate[t] = volDialysate[t - 1] + fluidAddedDay
+                            plasmaConcentration[t] = ((plasmaConcentration[t - 1] * 10 * volumeofDistribution[t-1]) + netMovtIn[t - 1])/(volumeofDistribution[t] * 10)
+                            amountDialysate[t] = amountDialysate[t - 1] + plasmaToDialysate[t - 1]
+                            dialysateConcentration[t] = amountDialysate[t] / volDialysate[t] * 100
+                            plasmaToDialysate[t] = (plasmaConcentration[t] - dialysateConcentration[t])*mtac/100
+                            amountBody[t] = amountBody[t-1] * netMovtIn[t - 1]
+                            excretion[t] = plasmaConcentration[t] * kr / 100
+                            netMovtIn[t] = gen - excretion[t] - plasmaToDialysate[t]
+                            t = t + 1
+                        }
 
-                        t += 1;
+                        while (t >= (initialTime + duration) && t < (initialTime + timeData[exchange] * 60)) {
+                            volumeofDistribution[t] = volumeofDistribution[t - 1] + (volume_intake)/1000
+                            volDialysate[t] = 0
+                            plasmaConcentration[t] = ((plasmaConcentration[t - 1] * 10 * volumeofDistribution[t-1]) + netMovtIn[t - 1])/(volumeofDistribution[t] * 10)
+                            amountDialysate[t] = 0
+                            dialysateConcentration[t] = 0
+                            plasmaToDialysate[t] = 0
+                            amountBody[t] = amountBody[t-1] * netMovtIn[t - 1]
+                            excretion[t] = plasmaConcentration[t] * kr / 100
+                            netMovtIn[t] = gen - excretion[t]
+                            t = t + 1
+                        }
                     }
 
-                    // during dead time 
-                    while (t >= (initialTime + effectiveTime) && t < (initialTime + totalTime)){
-                        plasmaToDialysateDiffusion[t] = 0;
-                        plasmaToDialysateConvection[t] = 0;
-                        plasmaToDialysate[t] = 0;
-                        volDialysate[t] = deadVolumeDialysate;
-                        dialysateConcentration[t] = dialysateConcentration[t - 1];
-                        amountDialysate[t] = volDialysate[t - 1] * dialysateConcentration[t - 1] / 100;
-
-                        volumeofDistribution[t] = volumeofDistribution[t - 1] + volume_intake/1000;
-                        plasmaConcentration[t] = ((plasmaConcentration[t - 1] * 10 * volumeofDistribution[t-1]) + netMovtIn[t - 1])/(volumeofDistribution[t] * 10);
-                        amountBody[t] = amountBody[t - 1] * netMovtIn [t - 1];
-                        excretion[t] = plasmaConcentration[t] * kru / 100;
-                        netMovtIn[t] = gen - excretion[t] - plasmaToDialysate[t];
-
-                        t += 1;
+                    while (t < (day + 1) * (24 * 60)){
+                        volumeofDistribution[t] = volumeofDistribution[t - 1] + (volume_intake)/1000
+                        volDialysate[t] = 0
+                        plasmaConcentration[t] = ((plasmaConcentration[t - 1] * 10 * volumeofDistribution[t-1]) + netMovtIn[t - 1])/(volumeofDistribution[t] * 10)
+                        amountDialysate[t] = 0
+                        dialysateConcentration[t] = 0
+                        plasmaToDialysate[t] = 0
+                        amountBody[t] = amountBody[t-1] * netMovtIn[t - 1]
+                        excretion[t] = plasmaConcentration[t] * kr / 100
+                        netMovtIn[t] = gen - excretion[t]
+                        t = t + 1
                     }
+                }   
+            }
+            else{
+                tfinal = t + 24*60
+                peakConcentration[peak_index] = plasmaConcentration[t-1]
+                peak_index  = peak_index + 1
+
+                while (t < tfinal){
+                    volumeofDistribution[t] = volumeofDistribution[t - 1] + (volume_intake)/1000
+                    volDialysate[t] = 0
+                    plasmaConcentration[t] = ((plasmaConcentration[t - 1] * 10 * volumeofDistribution[t-1]) + netMovtIn[t - 1])/(volumeofDistribution[t] * 10)
+                    amountDialysate[t] = 0
+                    dialysateConcentration[t] = 0
+                    plasmaToDialysate[t] = 0
+                    amountBody[t] = amountBody[t-1] * netMovtIn[t - 1]
+                    excretion[t] = plasmaConcentration[t] * kr / 100
+                    netMovtIn[t] = gen - excretion[t]
+                    t = t + 1
                 }
             }
-
-            while (t < (day + 1) * (24 * 60)){
-                plasmaToDialysateDiffusion[t] = 0;
-                plasmaToDialysateConvection[t] = 0;
-                plasmaToDialysate[t] = 0;
-                volDialysate[t] = deadVolumeDialysate;
-                dialysateConcentration[t] = dialysateConcentration[t - 1];
-                amountDialysate[t] = volDialysate[t - 1] * dialysateConcentration[t - 1] / 100;
-
-                volumeofDistribution[t] = volumeofDistribution[t - 1] + volume_intake/1000;
-                plasmaConcentration[t] = ((plasmaConcentration[t - 1] * 10 * volumeofDistribution[t-1]) + netMovtIn[t - 1])/(volumeofDistribution[t] * 10);
-                amountBody[t] = amountBody[t - 1] * netMovtIn [t - 1];
-                excretion[t] = plasmaConcentration[t] * kru / 100;
-                netMovtIn[t] = gen - excretion[t] - plasmaToDialysate[t];
-
-                t += 1;
-            }
-
+            console.log('day, t', day, t)
         }
-
         if (Math.abs(plasmaConcentration[t - 1] - initial_Concentration) < (initial_equilibrium_tolerance * initial_Concentration)){
-            initial_steady_state = 1;
+            initial_steady_state = 1
+            console.log(plasmaConcentration)
         }
         else{
-            initial_Concentration = plasmaConcentration[t - 1];
-            t = 0;
-            peak_index = 0;
+            initial_Concentration = plasmaConcentration[t - 1]
+            t = 1
+            peak_index = 0
         }
     } 
-
-    if (iterCount >= max_iter) {
-        console.warn("pdCalculator: reached maximum iterations without converging");
-    }
-    
     return ([plasmaConcentration, volumeofDistribution, peakConcentration, dialysateConcentration, volDialysate])                  
 }
 
@@ -677,16 +692,13 @@ function renderChart(dataSet, name, zoom, average) {
     var options = {
         scales: {
             x: {
-                type: 'linear',
                 title: {
                     display: true,
                     text: 'Time (minutes)'
                 },
                 min: 0,
-                max: 10080,
                 ticks: {
-                    beginAtZero: true, 
-                    stepSize: 1000,
+                    maxTicksLimit: 10,
                     font: {
                         family: "Manrope",
                         size: 15
@@ -750,8 +762,7 @@ function updateNumerical(plasmaConcentration, peakConcentration, gen, volumeofDi
     
     document.getElementById('avgPeakConc').innerText = avgPeak.toFixed(2);
 
-    console.log(gen);
-    console.log(avg);
+    gen = gen / (24*60)
 
     var effClearAvg = gen / avg * 100;
     var effClearPeak = gen / avgPeak * 100;

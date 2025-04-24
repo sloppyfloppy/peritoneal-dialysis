@@ -68,7 +68,9 @@ function setupEventListeners() {
             snap.m_fluid_removal,
             snap.a_fluid_removal,
             snap.pna,
-            snap.kru
+            snap.kru,
+            snap.solute,
+            snap.days
         );
     }));
 
@@ -176,7 +178,11 @@ function gatherFormInputs(){
 
     var m_fluid_removal = parseFloat(document.getElementById('m_fluid_removal').value);
     var a_fluid_removal = parseFloat(document.getElementById('a_fluid_removal').value);
-    var days = Array.from(document.querySelectorAll('input[name="day"]:checked')).map(day => day.value);
+
+    var days = Array.from(
+        document.querySelectorAll('input[name="day"]:checked')
+      ).map(chk => chk.value);
+      
 
     var volumeData = [];
     var timeData = [];
@@ -438,7 +444,8 @@ function defaultInput() {
             checkbox.checked = true;
     });
 
-    var days = document.querySelectorAll('input[name="day"]:checked');
+    var days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+      
 
     volumeData = [2, 2, 2, 2];
     timeData = [2.25, 2.25, 2.25, 12.25];
@@ -452,12 +459,12 @@ function defaultInput() {
     
     var selectedSolute = "urea";
 
-    displayValues(age, weight, height, sex, volume, volumeData, timeData, schemeData, m_fluid_removal, a_fluid_removal, pna, kru, selectedSolute);
+    displayValues(age, weight, height, sex, volume, volumeData, timeData, schemeData, m_fluid_removal, a_fluid_removal, pna, kru, selectedSolute, days);
 
 }
 
 
-function displayValues(age, weight, height, sex, volume, volumeData, timeData, schemeData, m_fluid_removal, a_fluid_removal, pna, kru, solute){
+function displayValues(age, weight, height, sex, volume, volumeData, timeData, schemeData, m_fluid_removal, a_fluid_removal, pna, kru, solute, days){
     document.getElementById('volume').value = volume;
     document.getElementById('age').value = age;
     document.getElementById('weight').value = weight;
@@ -473,12 +480,18 @@ function displayValues(age, weight, height, sex, volume, volumeData, timeData, s
         document.getElementById('exVolume ' + (i + 1)).value = volumeData[i];
         document.getElementById('exTime ' + (i + 1)).value = timeData[i];
         document.getElementById('exScheme ' + (i + 1)).value = schemeData[i];
-    }
+    }  
+
+    document.querySelectorAll('input[name="day"]').forEach(chk => {
+        chk.checked = days.includes(chk.value);
+    });
+    
     const defaultSolute = document.querySelector('input[name="solute"][value="' + solute + '"]');
     if (defaultSolute) {
         defaultSolute.checked = true;
         populateSoluteValues();
     }
+
 }
 
 
@@ -741,11 +754,9 @@ function redrawBothLines() {
     const zoomRadio   = document.querySelector('input[name="zoom"]:checked').value;
     const avgRadio    = document.querySelector('input[name="add"]:checked').value;
   
-    // convert zoom/avg into Chart.js inputs
     const zoomVal = zoomRadio === "Zoomed Out" ? 0 : 'auto';
     const showAvg = avgRadio === "Add Avg";
   
-    // 2. pick out the two data arrays (or undefined if that treatment hasn’t been run)
     let array1, array2, yLabel;
     switch (selectedVar) {
       case "Plasma Concentration":
@@ -772,7 +783,6 @@ function redrawBothLines() {
         return; // no-op if somehow nothing matches
     }
   
-    // 3. build up datasets in the same style as renderChart
     const datasets = [];
   
     function pushSeries(key, dataArr, label, color, colorAverage) {
@@ -809,11 +819,9 @@ function redrawBothLines() {
     pushSeries("treatment2", array2, "Treatment 2", "#E76F51", "#1C2541");
     
     console.log("datasets", datasets);
-    // 4. destroy old chart if it exists
     const existing = Chart.getChart("chartCanvas");
     if (existing) existing.destroy();
   
-    // 5. render new one
     const ctx = document.getElementById('chartCanvas').getContext('2d');
     new Chart(ctx, {
       type: 'line',
@@ -845,7 +853,7 @@ function redrawBothLines() {
 
 async function handleTreatmentToggle(seriesKey) {
     const cb = document.getElementById(seriesKey);
-   
+
     const inputs = gatherFormInputs();
     savedInputs[seriesKey] = { ...inputs};
     

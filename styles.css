@@ -221,7 +221,7 @@ button:hover {
 
 .chart-container {
     width: 100%;
-    height: 50%;
+    height: 40%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -231,5 +231,32 @@ button:hover {
     height: 75%;
 }
 
+.series-selector {
+    margin: 1.5rem 0;
+  }
+  
+  .series-selector h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+  }
+  
+  /* make the labels go side by side */
+  .series-options {
+    display: flex;
+    flex-direction: row;
+    gap: 2.5rem;          /* space between boxes */
+  }
+  
+  .series-options label {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.9rem;
+  }
+  
+  .series-options input {
+    margin-right: 0.3rem;
+  }
 
-
+.display-options-table{
+    margin: 1.5rem 0;
+}

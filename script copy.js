@@ -3,12 +3,6 @@ const treatments = {
     treatment2: null
 };
 
-const savedInputs = {
-    treatment1: null,
-    treatment2: null
-  };
-  
-
 function setupEventListeners() {
     // Attach change event to all solute radio buttons
     document.querySelectorAll('input[name="solute"]').forEach(radio => {
@@ -22,56 +16,12 @@ function setupEventListeners() {
     document.getElementById('run-tx1').addEventListener('click', () => {
         if (!validateForm()) return;
         handleTreatmentToggle('treatment1');
-    });
+      });
       
-    document.getElementById('run-tx2').addEventListener('click', () => {
+      document.getElementById('run-tx2').addEventListener('click', () => {
         if (!validateForm()) return;
         handleTreatmentToggle('treatment2');
-    });
-
-    document
-    .querySelectorAll('#series-selector input[type=checkbox]')
-    .forEach(cb => {
-        cb.addEventListener('change', () => {
-        // optional: you could re-validate inputs here
-        redrawBothLines();
-        });
-    });
-
-    [
-        'variable',   // Plasma / Volume / Dialysate conc / Dialysate volume
-        'zoom',       // Zoomed In / Zoomed Out
-        'add'         // Include Avg / Exclude
-      ].forEach(name => {
-        document
-          .querySelectorAll(`input[name="${name}"]`)
-          .forEach(radio => radio.addEventListener('change', redrawBothLines));
-      });
-    
-    document
-    .querySelectorAll('input[name="displayTreatmentInfo"]')
-    .forEach(radio => radio.addEventListener('change', () => {
-        const key = radio.value;         // "treatment1" or "treatment2"
-        const snap = savedInputs[key];     // the object you saved
-        console.log(snap);
-        if (!snap) return;                 // nothing to show yet
-        // call your existing function:
-        displayValues(
-            snap.age,
-            snap.weight,
-            snap.height,
-            snap.sex,
-            snap.volume,
-            snap.volumeData,
-            snap.timeData,
-            snap.schemeData,
-            snap.m_fluid_removal,
-            snap.a_fluid_removal,
-            snap.pna,
-            snap.kru
-        );
-    }));
-
+      });      
 }
 
 
@@ -166,8 +116,7 @@ function gatherFormInputs(){
     var age = parseFloat(document.getElementById('age').value);
     var height = parseFloat(document.getElementById('height').value);
     var weight = parseFloat(document.getElementById('weight').value);
-    var sex = document.getElementById('sex').value;
-    console.log("Sex", sex);
+    var sex = parseFloat(document.getElementById('sex').value);
     var kru = parseFloat(document.getElementById('kru').value);
     var solute = document.querySelector('input[name="solute"]:checked').value
     var mtac = parseFloat(document.getElementById('mtac').value);
@@ -236,7 +185,7 @@ function gatherFormInputs(){
             }
         }
     }
-    return {kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_removal, volumeData, timeData, schemeData, days, totATime, totMTime, totalExchangeTime, age, height, weight, sex};
+    return {kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_removal, volumeData, timeData, schemeData, days, totATime, totMTime, totalExchangeTime};
 }
 
 
@@ -426,6 +375,40 @@ function validateForm() {
 }
 
 
+// async function submitForm() {
+//     const {kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_removal, volumeData, timeData, schemeData, days, totATime, totMTime, totalExchangeTime} = gatherFormInputs();
+//     try {
+//         const [plasmaConcentration, volumeofDistribution, peakConcentration, dialysateConcentration, volDialysate, gen] = await pdCalculator(kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_removal, volumeData, timeData, schemeData, days, totATime, totMTime, totalExchangeTime);
+//         updateGraphVar(plasmaConcentration, volumeofDistribution, dialysateConcentration, volDialysate)
+//         updateNumerical(plasmaConcentration, peakConcentration, gen, volumeofDistribution)
+
+//         const graphVarRadios = document.querySelectorAll('input[name="variable"]');
+//         graphVarRadios.forEach(radio => {
+//             radio.addEventListener('change', () => {
+//                 updateGraphVar(plasmaConcentration, volumeofDistribution, dialysateConcentration, volDialysate);
+//             });
+//         });
+
+//         const graphZoomRadios = document.querySelectorAll('input[name="zoom"]');
+//         graphZoomRadios.forEach(radio => {
+//             radio.addEventListener('change', () => {
+//                 updateGraphVar(plasmaConcentration, volumeofDistribution, dialysateConcentration, volDialysate);
+//             });
+//         });
+
+//         const graphAvgRadios = document.querySelectorAll('input[name="add"]');
+//         graphAvgRadios.forEach(radio => {
+//             radio.addEventListener('change', () => {
+//                 updateGraphVar(plasmaConcentration, volumeofDistribution, dialysateConcentration, volDialysate);
+//             });
+//         });
+
+//     } catch (error) {
+//         console.error("Error:", error);
+//     }
+// }
+
+
 function defaultInput() {
 
     var age = 50;
@@ -449,15 +432,20 @@ function defaultInput() {
     var pna = 78;
     var kru = 2;
 
-    
-    var selectedSolute = "urea";
+    displayDefaultValues(age, weight, height, sex, volume, volumeData, timeData, schemeData, m_fluid_removal, a_fluid_removal, pna, kru);
 
-    displayValues(age, weight, height, sex, volume, volumeData, timeData, schemeData, m_fluid_removal, a_fluid_removal, pna, kru, selectedSolute);
+    const defaultSolute = document.querySelector('input[name="solute"][value="urea"]');
+    if (defaultSolute) {
+        defaultSolute.checked = true;
+        populateSoluteValues();
+    }
 
+    const selectedSolute = document.querySelector('input[name="solute"]:checked').value
 }
 
 
-function displayValues(age, weight, height, sex, volume, volumeData, timeData, schemeData, m_fluid_removal, a_fluid_removal, pna, kru, solute){
+function displayDefaultValues(age, weight, height, sex, volume, volumeData, timeData, schemeData, m_fluid_removal, a_fluid_removal, pna, kru){
+    document.getElementById('mtac').value = mtac;
     document.getElementById('volume').value = volume;
     document.getElementById('age').value = age;
     document.getElementById('weight').value = weight;
@@ -473,11 +461,6 @@ function displayValues(age, weight, height, sex, volume, volumeData, timeData, s
         document.getElementById('exVolume ' + (i + 1)).value = volumeData[i];
         document.getElementById('exTime ' + (i + 1)).value = timeData[i];
         document.getElementById('exScheme ' + (i + 1)).value = schemeData[i];
-    }
-    const defaultSolute = document.querySelector('input[name="solute"][value="' + solute + '"]');
-    if (defaultSolute) {
-        defaultSolute.checked = true;
-        populateSoluteValues();
     }
 }
 
@@ -701,6 +684,106 @@ function pdCalculator(kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_r
                       
 }
 
+
+// function renderChart(dataSet, name, zoom, average) {
+//     // Set default options for all charts
+//     Chart.defaults.font.size = 15;
+//     Chart.defaults.font.family = "Manrope";
+
+//     // Check if chart exists and destroy it before rendering a new one
+//     var chartStatus = Chart.getChart("chartCanvas");
+//     if (chartStatus !== undefined) {
+//         chartStatus.destroy();
+//     }
+
+//     var data = [];
+
+//     var data1 = {        
+//         label: name,
+//         data: dataSet,
+//         borderColor: '#2A9D8F',
+//         fill: false
+//     };
+
+//     data.push(data1);
+
+//     if (average && dataSet.length > 0) { // Only calculate average if dataSet is not empty
+//         var sum = dataSet.reduce((acc, value) => acc + value, 0);
+//         var avg = sum / dataSet.length;
+
+//         var data2 = {
+//             label: "Average",
+//             data: Array(dataSet.length).fill(avg),
+//             borderColor: '#E76F51',
+//             fill: false
+//         };
+
+//         data.push(data2);
+//     }
+
+//     const labels = Array.from({ length: dataSet.length }, (_, i) => i.toString()); // Adjust as needed
+
+//     var options = {
+//         scales: {
+//             x: {
+//                 type: 'linear',
+//                 title: {
+//                     display: true,
+//                     text: 'Time (minutes)'
+//                 },
+//                 min: 0,
+//                 max: 10080,
+//                 ticks: {
+//                     beginAtZero: true, 
+//                     stepSize: 1000,
+//                     font: {
+//                         family: "Manrope",
+//                         size: 15
+//                     }
+//                 }
+//             },
+//             y: {
+//                 title: {
+//                     display: true,
+//                     text: name
+//                 },
+//                 ticks: {
+//                     beginAtZero: true,
+//                     font: {
+//                         family: "Manrope",
+//                         size: 15
+//                     }
+//                 },
+//                 min: zoom
+//             }
+//         },
+//         plugins: {
+//             legend: {
+//                 labels: {
+//                     font: {
+//                         family: 'Manrope', // font for legend labels
+//                         size: 15,
+//                         style: 'normal',
+//                         lineHeight: 1.2
+//                     }
+//                 }
+//             }
+//         }
+//     };
+
+//     // Get the canvas context and create the chart instance
+//     const ctx = document.getElementById('chartCanvas').getContext('2d');
+//     var linechart = new Chart(ctx, {
+//         type: 'line',
+//         data: {
+//             labels: labels,
+//             datasets: data
+//         },
+//         options: options
+//     });
+// }
+
+
 function updateNumerical(plasmaConcentration, peakConcentration, gen, volumeofDistribution) {
     if (plasmaConcentration.length === 0) avg = 0; // Handle empty array case
 
@@ -735,8 +818,45 @@ function updateNumerical(plasmaConcentration, peakConcentration, gen, volumeofDi
 
 }
 
+
+// function updateGraphVar(plasmaConcentration, volumeofDistribution, dialysateConcentration, volDialysate){
+//     var selectedVar = document.querySelector('input[name="variable"]:checked').value;
+//     var zoom = document.querySelector('input[name="zoom"]:checked').value;
+//     var average = document.querySelector('input[name="add"]:checked').value;
+
+//     if (zoom === "Zoomed In"){
+//         zoom = 'auto';
+//     }
+//     else if (zoom === "Zoomed Out"){
+//         zoom = 0;
+//     }
+
+//     if (average === "Add Avg"){
+//         avg = true
+//     }
+//     else if (average === "No Avg"){
+//         avg = false
+//     }
+
+//     if (selectedVar === "Plasma Concentration"){
+//         renderChart(plasmaConcentration, "Plasma Concentration (mg/L)", zoom, avg)
+//     }
+//     else if (selectedVar === "Volume of Distribution"){
+//         renderChart(volumeofDistribution, "Volume of Distribution (L)", zoom, avg)
+//     }
+//     else if (selectedVar === "Dialysate Concentration"){
+//         renderChart(dialysateConcentration, "Dialysate Concentration (mg/L)", zoom, avg)
+//     }
+
+//     else if (selectedVar === "Dialysate Volume"){
+//         renderChart(volDialysate, "Dialysate Volume (mL)", zoom, avg)
+//     }
+// }
+
+
 function redrawBothLines() {
     console.log("→ treatments:", treatments);
+    // 1. grab the UI controls exactly the same way as updateGraphVar
     const selectedVar = document.querySelector('input[name="variable"]:checked').value;
     const zoomRadio   = document.querySelector('input[name="zoom"]:checked').value;
     const avgRadio    = document.querySelector('input[name="add"]:checked').value;
@@ -775,38 +895,30 @@ function redrawBothLines() {
     // 3. build up datasets in the same style as renderChart
     const datasets = [];
   
-    function pushSeries(key, dataArr, label, color, colorAverage) {
-        // find the corresponding checkbox
-        const box = document.querySelector(
-          `#series-selector input[data-series="${key}"]`
-        );
-        if (!box.checked || !Array.isArray(dataArr) || dataArr.length === 0) return;
-      
-        // main line
+    function pushSeries(dataArr, label, color) {
+      if (!dataArr) return;
+      // line
+      datasets.push({
+        label,
+        data: dataArr.map((y,i) => ({ x: i, y })),
+        borderColor: color,
+        fill: false
+      });
+      // average
+      if (showAvg && dataArr.length) {
+        const avg = dataArr.reduce((s,v) => s + v, 0) / dataArr.length;
         datasets.push({
-          label,
-          data: dataArr.map((y,i) => ({ x: i, y })),
+          label: label + " Avg",
+          data: dataArr.map((_,i) => ({ x: i, y: avg })),
+          borderDash: [5,5],
           borderColor: color,
           fill: false
         });
-      
-        // dotted average
-        if (showAvg) {
-          const avg = dataArr.reduce((s,v)=>s+v,0)/dataArr.length;
-          datasets.push({
-            label: label + ' Avg',
-            data: dataArr.map((_,i)=>({ x: i, y: avg })),
-            borderDash: [2,2],
-            borderWidth: 1,
-            borderColor: colorAverage,
-            fill: false
-          });
-        }
       }
-      
+    }
   
-    pushSeries("treatment1", array1, "Treatment 1", "#2A9D8F", "#6D454C");
-    pushSeries("treatment2", array2, "Treatment 2", "#E76F51", "#1C2541");
+    pushSeries(array1, "Treatment 1", "#2A9D8F");
+    pushSeries(array2, "Treatment 2", "#E76F51");
     
     console.log("datasets", datasets);
     // 4. destroy old chart if it exists
@@ -845,9 +957,11 @@ function redrawBothLines() {
 
 async function handleTreatmentToggle(seriesKey) {
     const cb = document.getElementById(seriesKey);
-   
+    // if you’re no longer using checkboxes, you can skip the cb.checked test
+    // and just always compute on button‐click; or you could toggle a hidden state.
+    
+    // 1) compute and store
     const inputs = gatherFormInputs();
-    savedInputs[seriesKey] = { ...inputs};
     
     const {
         plasmaConcentration,

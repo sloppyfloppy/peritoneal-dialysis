@@ -228,7 +228,8 @@
             <div id="timeError" class="error_left"></div>
 
         <div class="input-container">
-            <button onclick="validateForm()">Submit</button>
+            <button id = "run-tx1" onclick="validateForm()">Run Treatment 1</button>
+            <button id = "run-tx2" onclick="validateForm()">Run Treatment 2</button>
             <button onclick="defaultInput()">Default</button>
         </div>
 
@@ -240,8 +241,37 @@
                 <div class="chart-container">
                     <canvas id="chartCanvas"></canvas>
                 </div>
-                <script src="script.js"></script>
             </body>
+            <div class = "results-options-container">
+                <div id="series-selector" class="series-selector">
+                    <h3>Select up to 2 treatment plans to overlay:</h3>
+                    <div class="series-options">
+                        <label>
+                            <input type="checkbox" id="series1" data-series="treatment1" checked>
+                            Treatment 1
+                        </label>
+                        <label>
+                            <input type="checkbox" id="series2" data-series="treatment2">
+                            Treatment 2
+                        </label>
+                    </div>
+                </div>
+
+                <div id="prescription-display" class="display-options-table">
+                    <h3>Select patient data and prescription to display:</h3>
+                    <div class="series-options">
+                        <label>
+                            <input type="radio" name="displayTreatmentInfo" value="treatment1">
+                            Treatment 1
+                        </label>
+                        <label>
+                            <input type="radio" name="displayTreatmentInfo" value="treatment2">
+                            Treatment 2
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             <div class = "results-options-container">
                 <div class = "results-table">
                     <h2>Numerical Results</h2>
@@ -285,6 +315,7 @@
                         </tbody>
                     </table>
                 </div>
+
                 <div class="graph-options">
                     <h2>Graph options</h2>
                     <form>

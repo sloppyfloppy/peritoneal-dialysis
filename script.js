@@ -891,7 +891,7 @@ function redrawBothLines() {
             title: { display: true, text: 'Time (minutes)' },
             min: 0,
             max: 10080,
-            ticks: { stepSize: 1000 }
+            ticks: { stepSize: 1440 }
           },
           y: {
             title: { display: true, text: yLabel },

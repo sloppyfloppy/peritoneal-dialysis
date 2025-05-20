@@ -134,11 +134,14 @@ label {
 
 .results-table{
     width: 58%;
+    text-align:left;
 }
 
 .graph-options{
     width:38%
 }
+
+
 
 #results th,
 #results td {

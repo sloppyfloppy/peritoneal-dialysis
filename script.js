@@ -118,14 +118,15 @@ function computeVolume(weight, height, sex) {
     }
 }
 
+function computeGeneration(pna) {
+    var gen = ((pna - 7.17)/8.68 * 1000) / 1440;
+    return gen;
+}
 
 function populateSoluteValues() {
     const soluteData = {
         urea: {
           mtac: 23,         // Default MTAC for Urea
-        },
-        creatinine: {
-          mtac: 12,         // Default MTAC for Creatinine
         },
         other: {
           mtac: '',         // No default value for 'other'
@@ -143,21 +144,28 @@ function populateSoluteValues() {
     const weight = document.getElementById('weight').value;
     const height = document.getElementById('height').value;
     const sex = document.getElementById('sex').value; 
+    const pna = document.getElementById('pna').value;
     
     const volumeField = document.getElementById('volume');
+    const genField = document.getElementById('gen');
 
-    if (selectedSolute === 'urea' || selectedSolute === 'creatinine') {
+    if (selectedSolute === 'urea') {
         const computedVolume = computeVolume(weight, height, sex);
         volumeField.value = computedVolume;
+        const computedGeneration = computeGeneration(pna);
+        genField.value = computedGeneration;
+
     } else {
         // For 'other', clear the volume field (or leave as user-set)
         volumeField.value = soluteData[selectedSolute].volume;
+        genField.value = soluteData[selectedSolute].volume;
+
     }
     
     // If 'other' is selected, display a message prompting the user to enter custom values.
     const errorDiv = document.getElementById('soluteError');
     if (selectedSolute === 'other') {
-      errorDiv.textContent = "Please enter custom MTAC and Volume values for 'Other'.";
+      errorDiv.textContent = "Please enter custom MTAC, Volume, and Generation values for 'Other'.";
     } else {
       errorDiv.textContent = "";
     }
@@ -174,6 +182,7 @@ function gatherFormInputs(){
     var solute = document.querySelector('input[name="solute"]:checked').value
     var mtac = parseFloat(document.getElementById('mtac').value);
     var volume = parseFloat(document.getElementById('volume').value);
+    var gen = parseFloat(document.getElementById('gen').value);
     var pna = parseFloat(document.getElementById('pna').value);
 
     var m_fluid_removal = parseFloat(document.getElementById('m_fluid_removal').value);
@@ -205,9 +214,11 @@ function gatherFormInputs(){
             // Parse the element's text content into a float value and push it into the volumeData array
             // Check if the parsed value is a valid float
             if (volumeValue != 0){ // If it's a valid float
-                volumeData.push(volumeValue * 1000); // Push the float value into the volumeData array
+                volumeData.push(volumeValue); // Push the float value into the volumeData array
             }
         }
+        console.log("VOLUME");
+        console.log(volumeData);
 
         var currentId = 'exTime ' + i;
         var element = document.getElementById(currentId);
@@ -242,7 +253,7 @@ function gatherFormInputs(){
             }
         }
     }
-    return {kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_removal, volumeData, timeData, schemeData, days, totATime, totMTime, totalExchangeTime, age, height, weight, sex};
+    return {kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_removal, volumeData, timeData, schemeData, days, totATime, totMTime, totalExchangeTime, age, height, weight, sex, gen};
 }
 
 
@@ -264,6 +275,7 @@ function validateForm() {
     var volume = document.getElementById('volume').value;
     var m_fluid_removal = document.getElementById('m_fluid_removal').value;
     var a_fluid_removal = document.getElementById('a_fluid_removal').value;
+    var gen = document.getElementById('gen').value;
 
     var days = document.querySelectorAll('input[name="day"]:checked');
     var hasErrors = false;
@@ -372,6 +384,19 @@ function validateForm() {
         hasErrors = true;
     }
 
+    // check gen
+    if (gen.trim() === '') {
+        document.getElementById('genError').textContent = 'A number is required';
+        hasErrors = true;
+    } else if (isNaN(gen)) {
+        document.getElementById('genError').textContent = 'A number is required';
+        hasErrors = true;
+    } else if (gen < 0) {
+        document.getElementById('genError').textContent = 'Number has to be greater or equal to 0';
+        hasErrors = true;
+    }
+
+
     // Check m_fluid_removal
     if (m_fluid_removal.trim() === '') {
         document.getElementById('mFluidRemovalError').textContent = 'A number is required';
@@ -379,8 +404,8 @@ function validateForm() {
     } else if (isNaN(m_fluid_removal)) {
         document.getElementById('mFluidRemovalError').textContent = 'A number is required';
         hasErrors = true;
-    } else if (m_fluid_removal < 0) {
-        document.getElementById('mFluidRemovalError').textContent = 'Number has to be greater or equal to 0';
+    } else if (m_fluid_removal < 1) {
+        document.getElementById('mFluidRemovalError').textContent = 'Number has to be greater or equal to 1';
         hasErrors = true;
     }
 
@@ -391,8 +416,8 @@ function validateForm() {
     } else if (isNaN(a_fluid_removal)) {
         document.getElementById('aFluidRemovalError').textContent = 'A number is required';
         hasErrors = true;
-    } else if (a_fluid_removal < 0) {
-        document.getElementById('aFluidRemovalError').textContent = 'Number has to be greater or equal to 0';
+    } else if (a_fluid_removal < 1) {
+        document.getElementById('aFluidRemovalError').textContent = 'Number has to be greater or equal to 1';
         hasErrors = true;
     }
 
@@ -464,7 +489,7 @@ function defaultInput() {
 }
 
 
-function displayValues(age, weight, height, sex, volume, volumeData, timeData, schemeData, m_fluid_removal, a_fluid_removal, pna, kru, solute, days){
+function displayValues(age, weight, height, sex, volume, volumeData, timeData, schemeData, m_fluid_removal, a_fluid_removal, pna, kru, solute, days, gen){
     document.getElementById('volume').value = volume;
     document.getElementById('age').value = age;
     document.getElementById('weight').value = weight;
@@ -474,6 +499,7 @@ function displayValues(age, weight, height, sex, volume, volumeData, timeData, s
     document.getElementById('a_fluid_removal').value = a_fluid_removal;
     document.getElementById('pna').value = pna;
     document.getElementById('kru').value = kru;
+    document.getElementById('gen').value = gen;
     
     // Set default values for volumeData, timeData, and schemeData
     for (var i = 0; i < volumeData.length; i++) {
@@ -495,18 +521,13 @@ function displayValues(age, weight, height, sex, volume, volumeData, timeData, s
 }
 
 
-function pdCalculator(kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_removal, volumeData, timeData, schemeData, days, totATime, totMTime, totalExchangeTime){
+function pdCalculator(kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_removal, volumeData, timeData, schemeData, days, totATime, totMTime, totalExchangeTime, gen){
     
-    if (solute == "urea"){
-        kru = kru / 1.08;
-    }
-    else if (solute == "creatinine"){
-        kru = kru * 2 / 1.08;
-    }
+    kru = kru / 1.08;
     
-    var gen = ((pna - 7.17)/8.68 * 1000) / 1440; // tentative formula to get gen per minute
+    const scaledVolume = volumeData.map(v => v * 1000);
 
-    var numExchange = volumeData.length;
+    var numExchange = scaledVolume.length;
     var numOfTreatment = days.length;
     
     var deadTime = 0.25; // dead time = 15 minutes
@@ -556,7 +577,6 @@ function pdCalculator(kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_r
     
     const max_iter = 1000;
     let iterCount = 0;
-    mtac = 19.09;
     while (initial_steady_state == 0 && iterCount++ < max_iter) {
         for (let day = 0; day < 7; day++) {
             if (days.includes(daysOfWeek[day])) {
@@ -572,13 +592,14 @@ function pdCalculator(kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_r
 
                     var effectiveTime = (timeData[exchange] - deadTime) * 60;
                     var totalTime = timeData[exchange] * 60;
+                    console.log(kru, gen, volume_intake, volume, mtac);
                     initialTime = t;
 
                     // start of a day
                     if (t == 0){
                         plasmaConcentration[t] = initial_Concentration;
                         volumeofDistribution[t] = volume;
-                        volDialysate[t] = deadVolumeDialysate + volumeData[exchange];
+                        volDialysate[t] = deadVolumeDialysate + scaledVolume[exchange];
                         amountDialysate[t] = deadVolumeDialysate / 100 * plasmaConcentration[t];
                         amountBody[t] = plasmaConcentration[t] * volume * 10;
                         dialysateConcentration[t] = amountDialysate[t] / volDialysate[t] * 100;
@@ -597,7 +618,7 @@ function pdCalculator(kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_r
                     // reset from dead time
                     else{
                         volumeofDistribution[t] = volumeofDistribution[t - 1] + (volume_intake - uf)/1000;
-                        volDialysate[t] = deadVolumeDialysate + volumeData[exchange];
+                        volDialysate[t] = deadVolumeDialysate + scaledVolume[exchange];
                         amountDialysate[t] = amountDialysate[t - 1] + plasmaToDialysate[t - 1];
                         plasmaConcentration[t] = ((plasmaConcentration[t - 1] * 10 * volumeofDistribution[t-1]) + netMovtIn[t - 1])/(volumeofDistribution[t] * 10);
                         dialysateConcentration[t] = amountDialysate[t] / volDialysate[t] * 100;
@@ -686,7 +707,6 @@ function pdCalculator(kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_r
 
                 t += 1;
             }
-
         }
 
         if (Math.abs(plasmaConcentration[t - 1] - initial_Concentration) < (initial_equilibrium_tolerance * initial_Concentration)){
@@ -709,28 +729,26 @@ function pdCalculator(kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_r
         peakConcentration,
         dialysateConcentration,
         volDialysate,
-        gen
+        gen,
+        plasmaToDialysate,
+        excretion
     };
                       
 }
 
-function updateNumerical(plasmaConcentration, peakConcentration, gen, volumeofDistribution) {
+
+function updateNumerical(plasmaConcentration, peakConcentration, gen, plasmaToDialysate, kru, volume, solute, excretion) {
     if (plasmaConcentration.length === 0) avg = 0; // Handle empty array case
 
-    var sum = plasmaConcentration.reduce((plasmaConcentration, value) => plasmaConcentration + value, 0);
-    var avg = sum / plasmaConcentration.length;
+    var sumOfPlasmaConc = plasmaConcentration.reduce((plasmaConcentration, value) => plasmaConcentration + value, 0);
+    var avg = sumOfPlasmaConc / plasmaConcentration.length;
 
     document.getElementById('avgConc').innerText = avg.toFixed(2);
 
     if (peakConcentration.length === 0) avg = 0; // Handle empty array case
 
-    var sum = peakConcentration.reduce((peakConcentration, value) => peakConcentration + value, 0);
+    var sum = peakConcentration.reduce((peakConcentration, value) => peakConcentration + value, 0);    
     var avgPeak = sum / peakConcentration.length; 
-    
-    document.getElementById('avgPeakConc').innerText = avgPeak.toFixed(2);
-
-    console.log(gen);
-    console.log(avg);
 
     var effClearAvg = gen / avg * 100;
     var effClearPeak = gen / avgPeak * 100;
@@ -738,14 +756,54 @@ function updateNumerical(plasmaConcentration, peakConcentration, gen, volumeofDi
     document.getElementById('effClearAvgConc').innerText = effClearAvg.toFixed(2);
     document.getElementById('effClearPeakConc').innerText = effClearPeak.toFixed(2);
 
+    var sumOfPlasmaDialysate = plasmaToDialysate.reduce((plasmaToDialysate, value) => plasmaToDialysate + value, 0);
+    var sumOfExcretion = excretion.reduce((excretion, value) => excretion + value, 0);
 
-    if (volumeofDistribution.length === 0) avg = 0; // Handle empty array case
 
-    var sum = volumeofDistribution.reduce((volumeofDistribution, value) => volumeofDistribution + value, 0);
-    var avgVol = sum / volumeofDistribution.length; 
+    var dialysateClearance = sumOfPlasmaDialysate / sumOfPlasmaConc * 100;
 
-    document.getElementById('avgVolume').innerText = avgVol.toFixed(2);
+    document.getElementById('avgClearDial').innerText = dialysateClearance.toFixed(2);
+    document.getElementById('avgClearKidney').innerText = kru.toFixed(2);
 
+    var ktv = 0;
+    let ktvArray = new Array(7).fill(0);
+
+    if (solute == "urea"){
+        ktv = (sumOfPlasmaDialysate + sumOfExcretion)/sumOfPlasmaConc * plasmaConcentration.length / volume * 0.1;
+        ktvArray = ktVTable(plasmaConcentration, plasmaToDialysate, volume, excretion);
+    }
+    document.getElementById('ktv').innerText = ktv.toFixed(2);
+    
+    const ids = ['dayone', 'daytwo', 'daythree', 'dayfour', 'dayfive', 'daysix', 'dayseven'];
+
+    ids.forEach((id, i) => {
+        const cell = document.getElementById(id);
+        cell.innerText = ktvArray[i].toFixed(2);          // e.g. “1.83”
+    });
+
+}
+
+
+function ktVTable(plasmaConcentration, plasmaToDialysate, volume, excretion) {
+    const MIN_PER_DAY = 1440;
+    const middayIdx = [9360, 7920, 6480, 5040, 3600, 2160, 720];
+
+    return middayIdx.map((mid, day) => {
+        const start = day * MIN_PER_DAY;           // day block start
+        const end   = start + MIN_PER_DAY;         // day block end (exclusive)
+  
+        let sumPlasmaRemoved = 0;
+  
+        for (let i = start; i < end; i++) {
+          sumPlasmaRemoved += plasmaToDialysate[i] + excretion[i]|| 0 ;
+        }
+        
+        avgPlasmaRemoved = sumPlasmaRemoved/MIN_PER_DAY;
+        bloodPlasma = plasmaConcentration[mid] || 0;
+        ktv = avgPlasmaRemoved / bloodPlasma * plasmaToDialysate.length / volume * 0.1;
+
+        return ktv;
+    });
 }
 
 function redrawBothLines() {
@@ -851,11 +909,15 @@ function redrawBothLines() {
     });
   }
 
+
 async function handleTreatmentToggle(seriesKey) {
     const cb = document.getElementById(seriesKey);
 
     const inputs = gatherFormInputs();
     savedInputs[seriesKey] = { ...inputs};
+
+    console.log("SAVED INPUTS")
+    console.log(inputs);
     
     const {
         plasmaConcentration,
@@ -863,7 +925,9 @@ async function handleTreatmentToggle(seriesKey) {
         peakConcentration,         // you can omit this if you never plot peaks
         dialysateConcentration,
         volDialysate,
-        gen                        // if you need ‘gen’ for numerical results
+        gen,
+        plasmaToDialysate,
+        excretion
       } = await pdCalculator(
         inputs.kru,
         inputs.solute,
@@ -878,7 +942,8 @@ async function handleTreatmentToggle(seriesKey) {
         inputs.days,
         inputs.totATime,
         inputs.totMTime,
-        inputs.totalExchangeTime    // make sure gatherFormInputs returns this too
+        inputs.totalExchangeTime,
+        inputs.gen    // make sure gatherFormInputs returns this too
       );
     
 
@@ -886,12 +951,10 @@ async function handleTreatmentToggle(seriesKey) {
         plasmaConcentration,
         volumeofDistribution,
         dialysateConcentration,
-        volDialysate
+        volDialysate,
+        plasmaToDialysate
     };
-    
-    console.log("TREATMENTS")
-    console.log(treatments);    
-    // 2) redraw chart with everything in `treatments`
+
     redrawBothLines();
-    updateNumerical(plasmaConcentration, peakConcentration, gen, volumeofDistribution);
+    updateNumerical(plasmaConcentration, peakConcentration, gen, plasmaToDialysate, inputs.kru, inputs.volume, inputs.solute, excretion);
 }

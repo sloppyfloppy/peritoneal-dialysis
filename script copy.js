@@ -105,7 +105,7 @@ function populateSoluteValues() {
     // If 'other' is selected, display a message prompting the user to enter custom values.
     const errorDiv = document.getElementById('soluteError');
     if (selectedSolute === 'other') {
-      errorDiv.textContent = "Please enter custom MTAC and Volume values for 'Other'.";
+      errorDiv.textContent = "Please enter custom MTAC, Volume and Generation values for 'Other'.";
     } else {
       errorDiv.textContent = "";
     }

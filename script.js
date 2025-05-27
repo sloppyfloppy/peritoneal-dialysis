@@ -784,13 +784,15 @@ function pdCalculator(kru, solute, mtac, volume, pna, m_fluid_removal, a_fluid_r
 }
 
 
-function updateNumerical(plasmaConcentration, peakConcentration, gen, plasmaToDialysate, kru, volume, solute, excretion) {
+function updateNumerical(treatment, plasmaConcentration, peakConcentration, gen, plasmaToDialysate, kru, volume, solute, excretion) {
+    const suffix = `Tx${treatment}`;
+
     if (plasmaConcentration.length === 0) avg = 0; // Handle empty array case
 
     var sumOfPlasmaConc = plasmaConcentration.reduce((plasmaConcentration, value) => plasmaConcentration + value, 0);
     var avg = sumOfPlasmaConc / plasmaConcentration.length;
 
-    document.getElementById('avgConc').innerText = avg.toFixed(2);
+    document.getElementById(`avgConc${suffix}`).innerText = avg.toFixed(2);
 
     if (peakConcentration.length === 0) avg = 0; // Handle empty array case
 
@@ -800,8 +802,8 @@ function updateNumerical(plasmaConcentration, peakConcentration, gen, plasmaToDi
     var effClearAvg = gen / avg * 100;
     var effClearPeak = gen / avgPeak * 100;
 
-    document.getElementById('effClearAvgConc').innerText = effClearAvg.toFixed(2);
-    document.getElementById('effClearPeakConc').innerText = effClearPeak.toFixed(2);
+    document.getElementById(`avgClr${suffix}`).innerText = effClearAvg.toFixed(2);
+    document.getElementById(`peakClr${suffix}`).innerText = effClearPeak.toFixed(2);
 
     var sumOfPlasmaDialysate = plasmaToDialysate.reduce((plasmaToDialysate, value) => plasmaToDialysate + value, 0);
     var sumOfExcretion = excretion.reduce((excretion, value) => excretion + value, 0);
@@ -809,8 +811,8 @@ function updateNumerical(plasmaConcentration, peakConcentration, gen, plasmaToDi
 
     var dialysateClearance = sumOfPlasmaDialysate / sumOfPlasmaConc * 100;
 
-    document.getElementById('avgClearDial').innerText = dialysateClearance.toFixed(2);
-    document.getElementById('avgClearKidney').innerText = kru.toFixed(2);
+    document.getElementById(`avgClrDial${suffix}`).innerText = dialysateClearance.toFixed(2);
+    document.getElementById(`avgClrKid${suffix}`).innerText = kru.toFixed(2);
 
     var ktv = 0;
     let ktvArray = new Array(7).fill(0);
@@ -819,7 +821,7 @@ function updateNumerical(plasmaConcentration, peakConcentration, gen, plasmaToDi
         ktv = (sumOfPlasmaDialysate + sumOfExcretion)/sumOfPlasmaConc * plasmaConcentration.length / volume * 0.1;
         ktvArray = ktVTable(plasmaConcentration, plasmaToDialysate, volume, excretion);
     }
-    document.getElementById('ktv').innerText = ktv.toFixed(2);
+    document.getElementById(`ktv${suffix}`).innerText = ktv.toFixed(2);
     
     const ids = ['dayone', 'daytwo', 'daythree', 'dayfour', 'dayfive', 'daysix', 'dayseven'];
 
@@ -1002,5 +1004,12 @@ async function handleTreatmentToggle(seriesKey) {
     };
 
     redrawBothLines();
-    updateNumerical(plasmaConcentration, peakConcentration, gen, plasmaToDialysate, inputs.kru, inputs.volume, inputs.solute, excretion);
+
+    if (seriesKey == "treatment1"){
+        txt = 1; 
+    }
+    else{
+        txt = 2;
+    }
+    updateNumerical(txt, plasmaConcentration, peakConcentration, gen, plasmaToDialysate, inputs.kru, inputs.volume, inputs.solute, excretion);
 }

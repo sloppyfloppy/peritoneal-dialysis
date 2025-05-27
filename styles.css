@@ -263,3 +263,27 @@ button:hover {
 .display-options-table{
     margin: 1.5rem 0;
 }
+
+.reset-btn {
+  /* visual */
+  background: #264653;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+
+  /* size  ──────────────────────────────────────── */
+  width: 2.4rem;          /* a bit wider than the original ↺ button */
+  height: 1.8rem;         /* same height as your inputs */
+  padding: 0;             /* keeps it narrow */
+
+  /* text / icon */
+  font-size: 1rem;        /* ↺ stays crisp */
+  font-family: "Manrope", sans-serif;
+
+  /* alignment */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}

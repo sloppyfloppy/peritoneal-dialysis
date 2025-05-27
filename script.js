@@ -3,21 +3,34 @@ const treatments = {
     treatment2: null
 };
 
+
 const savedInputs = {
     treatment1: null,
     treatment2: null
   };
-  
+
+
+['mtac', 'volume', 'gen'].forEach(id => {
+  document.getElementById(id).addEventListener('input', e => {
+    // nothing to do except know it now has content
+    // (auto-calc will skip because value !== "")
+  });
+});
+
 
 function setupEventListeners() {
     // Attach change event to all solute radio buttons
+
     document.querySelectorAll('input[name="solute"]').forEach(radio => {
-      radio.addEventListener('change', populateSoluteValues);
+        radio.addEventListener('change', () => {
+            populateSoluteValues();
+        });
     });
 
     document.getElementById('weight').addEventListener('input', populateSoluteValues);
     document.getElementById('height').addEventListener('input', populateSoluteValues);
     document.getElementById('sex').addEventListener('change', populateSoluteValues);
+    document.getElementById('pna').addEventListener('input', populateSoluteValues);
 
     document.getElementById('run-tx1').addEventListener('click', () => {
         if (!validateForm()) return;
@@ -51,37 +64,33 @@ function setupEventListeners() {
     document
     .querySelectorAll('input[name="displayTreatmentInfo"]')
     .forEach(radio => radio.addEventListener('change', () => {
-        const key = radio.value;         // "treatment1" or "treatment2"
-        const snap = savedInputs[key];     // the object you saved
-        console.log(snap);
-        if (!snap) return;                 // nothing to show yet
-        // call your existing function:
-        displayValues(
-            snap.age,
-            snap.weight,
-            snap.height,
-            snap.sex,
-            snap.volume,
-            snap.volumeData,
-            snap.timeData,
-            snap.schemeData,
-            snap.m_fluid_removal,
-            snap.a_fluid_removal,
-            snap.pna,
-            snap.kru,
-            snap.solute,
-            snap.days
-        );
+        const key  = radio.value;
+        const snap = savedInputs[key];
+        if (!snap) return;
+
+        clearDisplay();
+        displayPrescription(snap);
     }));
 
 }
-
 
 document.addEventListener("DOMContentLoaded", () => {
     setupEventListeners();
     // Call the function immediately to populate defaults
     populateSoluteValues();
 });
+
+
+function setIfEmpty(el, value) {
+  if (el.value === '') el.value = value;
+}
+
+
+function resetOne(id) {
+  const el = document.getElementById(id);
+  el.value = '';          // make it empty
+  populateSoluteValues(); // auto-calc fills because it's now blank
+}
 
 
 function computeVolume(weight, height, sex) {
@@ -124,53 +133,54 @@ function computeGeneration(pna) {
 }
 
 function populateSoluteValues() {
-    const soluteData = {
-        urea: {
-          mtac: 23,         // Default MTAC for Urea
-        },
-        other: {
-          mtac: '',         // No default value for 'other'
-          volume: ''        // No default value for 'other'
-        }
-    };
-       
-    const selectedRadio = document.querySelector('input[name="solute"]:checked');
-    if (!selectedRadio) return; 
-  
-    const selectedSolute = selectedRadio.value;
-    document.getElementById('mtac').value = soluteData[selectedSolute].mtac;
-    document.getElementById('volume').value = soluteData[selectedSolute].volume;
+    const solute =
+    document.querySelector('input[name="solute"]:checked')?.value;
+    if (!solute) return;
 
-    const weight = document.getElementById('weight').value;
-    const height = document.getElementById('height').value;
-    const sex = document.getElementById('sex').value; 
-    const pna = document.getElementById('pna').value;
-    
-    const volumeField = document.getElementById('volume');
-    const genField = document.getElementById('gen');
+    const mtac   = document.getElementById('mtac');
+    const volume = document.getElementById('volume');
+    const gen    = document.getElementById('gen');
 
-    if (selectedSolute === 'urea') {
-        const computedVolume = computeVolume(weight, height, sex);
-        volumeField.value = computedVolume;
-        const computedGeneration = computeGeneration(pna);
-        genField.value = computedGeneration;
+    if (solute === 'urea') {
+        setIfEmpty(mtac, 23);                           // default MTAC
+        const w   = +document.getElementById('weight').value;
+        const h   = +document.getElementById('height').value;
+        const sex =  document.getElementById('sex').value;
+        const pna = +document.getElementById('pna').value;
 
+        setIfEmpty(volume, computeVolume(w, h, sex));
+        setIfEmpty(gen,    computeGeneration(pna));
     } else {
-        // For 'other', clear the volume field (or leave as user-set)
-        volumeField.value = soluteData[selectedSolute].volume;
-        genField.value = soluteData[selectedSolute].volume;
-
-    }
-    
-    // If 'other' is selected, display a message prompting the user to enter custom values.
-    const errorDiv = document.getElementById('soluteError');
-    if (selectedSolute === 'other') {
-      errorDiv.textContent = "Please enter custom MTAC, Volume, and Generation values for 'Other'.";
-    } else {
-      errorDiv.textContent = "";
-    }
+        // for 'other' just make sure nothing auto-fills
+        setIfEmpty(mtac,   '');
+        setIfEmpty(volume, '');
+        setIfEmpty(gen,    '');
+  }
 }
   
+
+function clearDisplay () {
+    document.querySelectorAll('.js-wipe').forEach(el => {
+
+    // Text / number / hidden inputs, textareas
+    if (el instanceof HTMLInputElement ||
+        el instanceof HTMLTextAreaElement) {
+        el.value   = '';
+        el.checked = false;              // un-tick any radios / checkboxes
+        return;
+    }
+
+    // Dropdowns
+    if (el instanceof HTMLSelectElement) {
+        el.selectedIndex = 0;           // reset to the first <option>
+        return;
+    }
+
+    // Everything else (tables, divs, canvases, …)
+    el.innerHTML = '';
+    });
+}
+
 
 function gatherFormInputs(){
     var age = parseFloat(document.getElementById('age').value);
@@ -518,6 +528,43 @@ function displayValues(age, weight, height, sex, volume, volumeData, timeData, s
         populateSoluteValues();
     }
 
+}
+
+
+function displayPrescription(snap) {
+  // put saved values straight into the form ------------------------
+    document.getElementById('age').value    = snap.age ?? '';
+    document.getElementById('weight').value = snap.weight ?? '';
+    document.getElementById('height').value = snap.height ?? '';
+    document.getElementById('sex').value    = snap.sex ?? '';
+
+    document.getElementById('mtac').value   = snap.mtac   ?? '';
+    document.getElementById('volume').value = snap.volume ?? '';
+    document.getElementById('gen').value    = snap.gen    ?? '';
+
+    document.getElementById('kru').value    = snap.kru    ?? '';
+    document.getElementById('pna').value    = snap.pna    ?? '';
+
+    document.getElementById('m_fluid_removal').value    = snap.m_fluid_removal    ?? '';
+    document.getElementById('a_fluid_removal').value    = snap.a_fluid_removal    ?? '';
+
+    for (var i = 0; i < volumeData.length; i++) {
+        document.getElementById('exVolume ' + (i + 1)).value = snap.volumeData[i];
+        document.getElementById('exTime ' + (i + 1)).value = snap.timeData[i];
+        document.getElementById('exScheme ' + (i + 1)).value = snap.schemeData[i];
+    }  
+
+    document.querySelectorAll('input[name="day"]').forEach(chk => {
+        chk.checked = snap.days.includes(chk.value);
+    });
+    
+    const defaultSolute = document.querySelector('input[name="solute"][value="' + snap.solute + '"]');
+    if (defaultSolute) {
+        defaultSolute.checked = true;
+        populateSoluteValues();
+    }
+
+    populateSoluteValues();
 }
 
 
@@ -871,8 +918,7 @@ function redrawBothLines() {
           });
         }
       }
-      
-  
+    
     pushSeries("treatment1", array1, "Treatment 1", "#2A9D8F", "#6D454C");
     pushSeries("treatment2", array2, "Treatment 2", "#E76F51", "#1C2541");
     

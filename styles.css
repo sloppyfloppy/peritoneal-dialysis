@@ -130,18 +130,32 @@ label {
 .results-options-container {
     display: flex;
     justify-content: space-between;
+    flex-direction: column;
+    row-gap:1.5rem;
 }
 
-.results-table{
-    width: 58%;
+.results-table table{
+    table-layout: fixed;
+    width: 100%;
     text-align:left;
 }
 
-.graph-options{
-    width:38%
+.results-table td {
+  text-align: left;
+}
+
+.col-metric {
+  width: 50%;
+}
+
+.col-treat {
+  width: 25%;
 }
 
 
+.graph-options{
+    width:100%
+}
 
 #results th,
 #results td {
@@ -264,6 +278,14 @@ button:hover {
     margin: 1.5rem 0;
 }
 
+.analysis-col {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  grid-template-rows: auto auto;
+  column-gap: 2rem;
+  row-gap:   1.5rem;
+}
+
 .reset-btn {
   /* visual */
   background: #264653;
@@ -286,4 +308,15 @@ button:hover {
   justify-content: center;
 
   cursor: pointer;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
 }

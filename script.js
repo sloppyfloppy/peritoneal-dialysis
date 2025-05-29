@@ -35,11 +35,23 @@ function setupEventListeners() {
     document.getElementById('run-tx1').addEventListener('click', () => {
         if (!validateForm()) return;
         handleTreatmentToggle('treatment1');
+
+        const radio1 = document.querySelector(
+            'input[name="displayTreatmentInfo"][value="treatment1"]'
+        );
+        radio1.checked = true;
+        radio1.dispatchEvent(new Event('change', { bubbles: true }));
     });
       
     document.getElementById('run-tx2').addEventListener('click', () => {
         if (!validateForm()) return;
         handleTreatmentToggle('treatment2');
+
+        const radio1 = document.querySelector(
+            'input[name="displayTreatmentInfo"][value="treatment2"]'
+        );
+        radio1.checked = true;
+        radio1.dispatchEvent(new Event('change', { bubbles: true }));
     });
 
     document

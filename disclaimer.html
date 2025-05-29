@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Disclaimer</title>
+  <style>
+    body, html { margin:0; padding:0; height:100%; }
+    .overlay {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      height: 100%;
+      background: #fafafa;
+      padding: 2rem;
+      font-family: sans-serif;
+    }
+    .overlay h1 { margin-bottom: 1rem; }
+    .overlay p  { margin-bottom: 2rem; max-width: 500px; }
+    .overlay button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <h1>⚠️ Disclaimer</h1>
+    <p>
+      Please read and accept the terms below before proceeding to the application.
+      <br/><br/>
+      Disclaimer: The app should not be used as a substitute for medical advice by an appropriately qualified health care provider. </br>
+      <br></br>
+      Stanford University is not responsible for any medical decisions based on use of the website. </br>
+    </p>
+    <button id="proceed">Accept and Continue</button>
+  </div>
+
+ <script>
+  document
+    .getElementById('proceed')
+    .addEventListener('click', () => {
+      // ✅ Correct method name: setItem, not setIstem
+      sessionStorage.setItem('disclaimerAccepted', 'true');
+
+      // redirect to your main app page
+      window.location.href = '/index.html';
+    });
+</script>
+</body>
+</html>

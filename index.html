@@ -9,6 +9,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // if they haven’t yet accepted, boot them to the disclaimer
+        if (!sessionStorage.getItem('disclaimerAccepted')) {
+            window.location.href = '/disclaimer.html';
+        }
+    </script>
+
 </head>
 <body>
     <h1>Weekly Peritoneal Dialysis Calculator</h1>
@@ -234,8 +242,6 @@
             <button id = "run-tx2" onclick="validateForm()">Run Treatment 2</button>
             <button onclick="defaultInput()">Default</button>
         </div>
-
-
         </div>
         <div class="input-container">
             <h2>Graphical Results</h2>
@@ -244,8 +250,8 @@
                     <canvas id="chartCanvas"></canvas>
                 </div>
             </body>
-            <div class = "results-options-container">
-                 <div id="prescription-display" class="display-options-table">
+            <div class="analysis-col">
+                <div id = "series-selector">
                     <h3>Select patient data and prescription to display:</h3>
                     <div class="series-options">
                         <label>
@@ -258,136 +264,137 @@
                         </label>
                     </div>
                 </div>
-
-                <div id="series-selector" class="series-selector">
-                    <h3>Select up to 2 treatment plans to overlay:</h3>
-                    <div class="series-options">
-                        <label>
-                            <input type="checkbox" id="series1" data-series="treatment1" checked>
-                            Treatment 1
-                        </label>
-                        <label>
-                            <input type="checkbox" id="series2" data-series="treatment2">
-                            Treatment 2
-                        </label>
+                <div id = "graph-selector">
+                    <div id="series-selector" class="series-selector">
+                        <h3>Select up to 2 treatment plans to overlay:</h3>
+                        <div class="series-options">
+                            <label>
+                                <input type="checkbox" id="series1" data-series="treatment1" checked>
+                                Treatment 1
+                            </label>
+                            <label>
+                                <input type="checkbox" id="series2" data-series="treatment2">
+                                Treatment 2
+                            </label>
+                        </div>
                     </div>
                 </div>
-            </div>
+                <div class = "results-options-container">
+                    <div class = "results-table">
+                        <h2>Numerical Results</h2>
+                        <table id = "results">
+                            <colgroup>
+                                <col class="col-metric" />
+                                <col class="col-treat" />
+                                <col class="col-treat" />
+                            </colgroup>
 
-            <div class = "results-options-container">
-                <div class = "results-table">
-                    <h2>Numerical Results</h2>
-                    <table id = "results">
-                        <thead>
-                            <tr>
-                            <th>Metric</th>
-                            <th>Treatment&nbsp;1</th>
-                            <th>Treatment&nbsp;2</th>
-                            </tr>
-                        </thead>
+                            <thead>
+                                <tr>
+                                <th>Metric</th>
+                                <th>Treatment&nbsp;1</th>
+                                <th>Treatment&nbsp;2</th>
+                                </tr>
+                            </thead>
 
-                        <tbody>
-                            <tr> 
-                                <td>
-                                    Time averaged plasma concentration (mg / L): 
-                                </td>
-                                <td id="avgConcTx1"></td>
-                                <td id="avgConcTx2"></td>
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Effective clearance - average concentration (ml / min): 
-                                </td>
-                                <td id="avgClrTx1"></td>
-                                <td id="avgClrTx2"></td>
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Effective clearance - peak concentration (ml / min): 
-                                </td>
-                                <td id="peakClrTx1"></td>
-                                <td id="peakClrTx2"></td>            
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Time averaged clearance by dialysis (ml / min): 
-                                </td>
-                                <td id="avgClrDialTx1"></td>
-                                <td id="avgClrDialTx2"></td>  
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Time averaged clearance by kidney (ml / min): 
-                                </td>
-                                <td id="avgClrKidTx1"></td>
-                                <td id="avgClrKidTx2"></td>  
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Weekly Kt/V: 
-                                </td>
-                                <td id="ktvTx1"></td>
-                                <td id="ktvTx2"></td>  
-                            </tr>
-                        </tbody>
-                    </table>
-                    <br>
-                    <h3>Kt/V Calculated from Plasma UreaN at Noon on Each Day</h3>
-                    <table id = "ktvTable">
-                        <tbody>
-                            <tr> 
-                                <td>
-                                    Monday: 
-                                </td>
-                                <td id = "dayone">
-                                </td>
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Tuesday: 
-                                </td>
-                                <td id = "daytwo">
-                                </td>
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Wednesday: 
-                                </td>
-                                <td id = "daythree">
-                                </td>
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Thursday: 
-                                </td>
-                                <td id = "dayfour">
-                                </td>
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Friday: 
-                                </td>
-                                <td id = "dayfive">
-                                </td>
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Saturday: 
-                                </td>
-                                <td id = "daysix">
-                                </td>
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Sunday: 
-                                </td>
-                                <td id = "dayseven">
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                            <tbody>
+                                <tr> 
+                                    <td>
+                                        Time averaged plasma concentration (mg / L): 
+                                    </td>
+                                    <td id="avgConcTx1"></td>
+                                    <td id="avgConcTx2"></td>
+                                </tr>
+                                <tr> 
+                                    <td>
+                                        Effective clearance - average concentration (ml / min): 
+                                    </td>
+                                    <td id="avgClrTx1"></td>
+                                    <td id="avgClrTx2"></td>
+                                </tr>
+                                <tr> 
+                                    <td>
+                                        Effective clearance - peak concentration (ml / min): 
+                                    </td>
+                                    <td id="peakClrTx1"></td>
+                                    <td id="peakClrTx2"></td>            
+                                </tr>
+                                <tr> 
+                                    <td>
+                                        Time averaged clearance by dialysis (ml / min): 
+                                    </td>
+                                    <td id="avgClrDialTx1"></td>
+                                    <td id="avgClrDialTx2"></td>  
+                                </tr>
+                                <tr> 
+                                    <td>
+                                        Time averaged clearance by kidney (ml / min): 
+                                    </td>
+                                    <td id="avgClrKidTx1"></td>
+                                    <td id="avgClrKidTx2"></td>  
+                                </tr>
+                                <tr> 
+                                    <td>
+                                        Weekly Kt/V: 
+                                    </td>
+                                    <td id="ktvTx1"></td>
+                                    <td id="ktvTx2"></td>  
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br>
+                    </div>
+                    <div class = "results-table">
+                        <h3>Kt/V Calculated from Plasma UreaN at Noon on Each Day</h3>
+                        <table id = "ktvTable">
+                            <tbody>
+                                <tr> 
+                                    <td>
+                                        Monday: 
+                                    </td>
+                                    <td id = "dayone"> </td>
+                                </tr>
+                                <tr> 
+                                    <td>
+                                        Tuesday: 
+                                    </td>
+                                    <td id = "daytwo"> </td>
+                                </tr>
+                                <tr> 
+                                    <td>
+                                        Wednesday: 
+                                    </td>
+                                    <td id = "daythree"></td>
+                                </tr>
+                                <tr> 
+                                    <td>
+                                        Thursday: 
+                                    </td>
+                                    <td id = "dayfour"></td>
+                                </tr>
+                                <tr> 
+                                    <td>
+                                        Friday: 
+                                    </td>
+                                    <td id = "dayfive"></td>
+                                </tr>
+                                <tr> 
+                                    <td>
+                                        Saturday: 
+                                    </td>
+                                    <td id = "daysix"></td>
+                                </tr>
+                                <tr> 
+                                    <td>
+                                        Sunday: 
+                                    </td>
+                                    <td id = "dayseven"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-
+                
                 <div class="graph-options">
                     <h2>Graph options</h2>
                     <form>
@@ -432,6 +439,7 @@
                         </fieldset>
                     </form>
                 </div>
+            </div>
             </div>
         </div> 
     </div>

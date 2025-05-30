@@ -42,11 +42,10 @@
   document
     .getElementById('proceed')
     .addEventListener('click', () => {
-      // ✅ Correct method name: setItem, not setIstem
-      sessionStorage.setItem('disclaimerAccepted', 'true');
-
-      // redirect to your main app page
-      window.location.href = '/index.html';
+        // ✅ Correct method name: setItem, not setIstem
+        sessionStorage.setItem('disclaimerAccepted', 'true');
+        // go back to your app entry, relative to this file’s location
+        window.location.href = 'index.html';
     });
 </script>
 </body>

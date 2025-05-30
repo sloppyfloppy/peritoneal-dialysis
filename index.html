@@ -13,7 +13,8 @@
     <script>
         // if they haven’t yet accepted, boot them to the disclaimer
         if (!sessionStorage.getItem('disclaimerAccepted')) {
-            window.location.href = '/disclaimer.html';
+        // relative redirect into the same folder
+            window.location.href = 'disclaimer.html';
         }
     </script>
 

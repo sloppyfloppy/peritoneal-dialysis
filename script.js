@@ -42,34 +42,26 @@ function setupEventListeners() {
         handleTreatmentToggle('treatment2');
     });
 
-    document
-    .querySelectorAll('#series-selector input[type=checkbox]')
-    .forEach(cb => {
-        cb.addEventListener('change', () => {
-        // optional: you could re-validate inputs here
-        redrawBothLines();
-        });
-    });
-
     [
         'variable',   // Plasma / Volume / Dialysate conc / Dialysate volume
         'zoom',       // Zoomed In / Zoomed Out
         'add'         // Include Avg / Exclude
-      ].forEach(name => {
+    ].forEach(name => {
         document
-          .querySelectorAll(`input[name="${name}"]`)
-          .forEach(radio => radio.addEventListener('change', redrawBothLines));
-      });
+            .querySelectorAll(`input[name="${name}"]`)
+            .forEach(radio => radio.addEventListener('change', redrawBothLines));
+    });
     
     document
     .querySelectorAll('input[name="displayTreatmentInfo"]')
     .forEach(radio => radio.addEventListener('change', () => {
-        const key  = radio.value;
+        const key = radio.value;
         const snap = savedInputs[key];
         if (!snap) return;
 
         clearDisplay();
         displayPrescription(snap);
+        updateHeaders(key);
     }));
 
 }
@@ -78,6 +70,11 @@ document.addEventListener("DOMContentLoaded", () => {
     setupEventListeners();
     // Call the function immediately to populate defaults
     populateSoluteValues();
+    
+    // Check if user has already accepted the disclaimer
+    if (!localStorage.getItem('disclaimerAccepted')) {
+        showDisclaimer();
+    }
 });
 
 
@@ -119,17 +116,17 @@ function computeVolume(weight, height, sex) {
     height = parseFloat(height);
     
     if (sex === 'M') {
-      return (0.194786 * height + 0.296785 * weight - 14.012934);
+        return (0.194786 * height + 0.296785 * weight - 14.012934);
     } else if (sex === 'F') {
-      return (0.34454 * height + 0.183809 * weight - 35.270121);
+        return (0.34454 * height + 0.183809 * weight - 35.270121);
     } else {
-      return '';
+        return '';
     }
 }
 
 function computeGeneration(pna) {
-    var gen = ((pna - 7.17)/8.68 * 1000) / 1440;
-    return gen;
+    if (!pna) return '';
+    return pna * 0.154;
 }
 
 function populateSoluteValues() {
@@ -148,14 +145,21 @@ function populateSoluteValues() {
         const sex =  document.getElementById('sex').value;
         const pna = +document.getElementById('pna').value;
 
-        setIfEmpty(volume, computeVolume(w, h, sex));
-        setIfEmpty(gen,    computeGeneration(pna));
+        const computedVolume = computeVolume(w, h, sex);
+        const computedGen = computeGeneration(pna);
+        
+        if (computedVolume) {
+            setIfEmpty(volume, parseFloat(computedVolume).toFixed(2));
+        }
+        if (computedGen) {
+            setIfEmpty(gen, parseFloat(computedGen).toFixed(2));
+        }
     } else {
         // for 'other' just make sure nothing auto-fills
         setIfEmpty(mtac,   '');
         setIfEmpty(volume, '');
         setIfEmpty(gen,    '');
-  }
+    }
 }
   
 
@@ -808,7 +812,6 @@ function updateNumerical(treatment, plasmaConcentration, peakConcentration, gen,
     var sumOfPlasmaDialysate = plasmaToDialysate.reduce((plasmaToDialysate, value) => plasmaToDialysate + value, 0);
     var sumOfExcretion = excretion.reduce((excretion, value) => excretion + value, 0);
 
-
     var dialysateClearance = sumOfPlasmaDialysate / sumOfPlasmaConc * 100;
 
     document.getElementById(`avgClrDial${suffix}`).innerText = dialysateClearance.toFixed(2);
@@ -823,13 +826,17 @@ function updateNumerical(treatment, plasmaConcentration, peakConcentration, gen,
     }
     document.getElementById(`ktv${suffix}`).innerText = ktv.toFixed(2);
     
-    const ids = ['dayone', 'daytwo', 'daythree', 'dayfour', 'dayfive', 'daysix', 'dayseven'];
-
-    ids.forEach((id, i) => {
-        const cell = document.getElementById(id);
-        cell.innerText = ktvArray[i].toFixed(2);          // e.g. “1.83”
+    const days = ['one', 'two', 'three', 'four', 'five', 'six', 'seven'];
+    days.forEach((day, i) => {
+        const cell = document.getElementById(`day${day}${suffix}`);
+        if (cell) {
+            cell.innerText = ktvArray[i].toFixed(2);
+        }
     });
 
+    // Format volume and generation values to 2 decimal places
+    document.getElementById('volume').value = parseFloat(volume).toFixed(2);
+    document.getElementById('gen').value = parseFloat(gen).toFixed(2);
 }
 
 
@@ -961,6 +968,13 @@ function redrawBothLines() {
 async function handleTreatmentToggle(seriesKey) {
     const cb = document.getElementById(seriesKey);
 
+    // Toggle treatment2-selected class on body
+    if (seriesKey === 'treatment2') {
+        document.body.classList.add('treatment2-selected');
+    } else {
+        document.body.classList.remove('treatment2-selected');
+    }
+
     const inputs = gatherFormInputs();
     savedInputs[seriesKey] = { ...inputs};
 
@@ -1012,4 +1026,44 @@ async function handleTreatmentToggle(seriesKey) {
         txt = 2;
     }
     updateNumerical(txt, plasmaConcentration, peakConcentration, gen, plasmaToDialysate, inputs.kru, inputs.volume, inputs.solute, excretion);
+    
+    // Update headers for the current treatment
+    updateHeaders(seriesKey);
+
+    // Automatically select the corresponding radio button
+    const radioButton = document.querySelector(`input[name="displayTreatmentInfo"][value="${seriesKey}"]`);
+    if (radioButton) {
+        radioButton.checked = true;
+        // Trigger the change event to update the display
+        radioButton.dispatchEvent(new Event('change'));
+    }
+}
+
+function updateHeaders(treatmentKey) {
+    const treatmentNum = treatmentKey === 'treatment1' ? '1' : '2';
+    
+    // Get all h2 elements
+    const headers = document.querySelectorAll('h2');
+    
+    // Update each header based on its current text
+    headers.forEach(header => {
+        const currentText = header.textContent.trim();
+        if (currentText === 'Daily Exchange' || currentText.startsWith('Daily Exchange for Treatment')) {
+            header.textContent = `Daily Exchange for Treatment ${treatmentNum}`;
+        } else if (currentText === 'Fluid Removal' || currentText.startsWith('Fluid Removal for Treatment')) {
+            header.textContent = `Fluid Removal for Treatment ${treatmentNum}`;
+        } else if (currentText === 'Weekly Calendar' || currentText.startsWith('Weekly Calendar for Treatment')) {
+            header.textContent = `Weekly Calendar for Treatment ${treatmentNum}`;
+        }
+    });
+}
+
+function showDisclaimer() {
+    const modal = document.getElementById('disclaimerModal');
+    modal.style.display = 'block';
+    
+    document.getElementById('acceptDisclaimer').addEventListener('click', () => {
+        modal.style.display = 'none';
+        localStorage.setItem('disclaimerAccepted', 'true');
+    });
 }

@@ -11,6 +11,15 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <div id="disclaimerModal" class="modal">
+        <div class="modal-content">
+            <h2>Disclaimer</h2>
+            <p>Disclaimer: the app should not be used as a substitute for medical advice by an appropriately qualified health care provider.</p>
+            <p>Stanford University is not responsible for any medical decisions based on use of the app</p>
+            <button id="acceptDisclaimer" class="modal-button">I Understand</button>
+        </div>
+    </div>
+
     <h1>Weekly Peritoneal Dialysis Calculator</h1>
         <div class="input-container-dow">
             <h2>Weekly Calendar </h2>
@@ -238,199 +247,188 @@
 
         </div>
         <div class="input-container">
-            <h2>Graphical Results</h2>
+            <h2 class="graphical-results-header">Graphical Results</h2>
             <body>
                 <div class="chart-container">
                     <canvas id="chartCanvas"></canvas>
                 </div>
             </body>
-            <div class = "results-options-container">
-                 <div id="prescription-display" class="display-options-table">
-                    <h3>Select patient data and prescription to display:</h3>
-                    <div class="series-options">
-                        <label>
-                            <input type="radio" name="displayTreatmentInfo" value="treatment1">
-                            Treatment 1
-                        </label>
-                        <label>
-                            <input type="radio" name="displayTreatmentInfo" value="treatment2">
-                            Treatment 2
-                        </label>
+            <div class="results-options-container">
+                <div class="results-panel">
+                    <div id="prescription-display" class="display-options-table">
+                        <h3>Select prescription to display:</h3>
+                        <div class="series-options">
+                            <label>
+                                <input type="radio" name="displayTreatmentInfo" value="treatment1">
+                                Treatment 1
+                            </label>
+                            <label>
+                                <input type="radio" name="displayTreatmentInfo" value="treatment2">
+                                Treatment 2
+                            </label>
+                        </div>
+                    </div>
+                    <div class="results-table">
+                        <h2 class="numerical-results-header">Numerical Results</h2>
+                        <table id="results">
+                            <thead>
+                                <tr>
+                                <th>Metric</th>
+                                <th>Treatment&nbsp;1</th>
+                                <th>Treatment&nbsp;2</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr> 
+                                    <td>
+                                        Time averaged plasma concentration (mg / L): 
+                                    </td>
+                                    <td id="avgConcTx1"></td>
+                                    <td id="avgConcTx2"></td>
+                                </tr>
+                                <tr> 
+                                    <td>
+                                        Effective clearance - average concentration (ml / min): 
+                                    </td>
+                                    <td id="avgClrTx1"></td>
+                                    <td id="avgClrTx2"></td>
+                                </tr>
+                                <tr> 
+                                    <td>
+                                        Effective clearance - peak concentration (ml / min): 
+                                    </td>
+                                    <td id="peakClrTx1"></td>
+                                    <td id="peakClrTx2"></td>            
+                                </tr>
+                                <tr> 
+                                    <td>
+                                        Time averaged clearance by dialysis (ml / min): 
+                                    </td>
+                                    <td id="avgClrDialTx1"></td>
+                                    <td id="avgClrDialTx2"></td>  
+                                </tr>
+                                <tr> 
+                                    <td>
+                                        Time averaged clearance by kidney (ml / min): 
+                                    </td>
+                                    <td id="avgClrKidTx1"></td>
+                                    <td id="avgClrKidTx2"></td>  
+                                </tr>
+                                <tr> 
+                                    <td>
+                                        Weekly Kt/V: 
+                                    </td>
+                                    <td id="ktvTx1"></td>
+                                    <td id="ktvTx2"></td>  
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br>
+                        <h3>Kt/V Calculated from Plasma UreaN at Noon on Each Day</h3>
+                        <table id = "ktvTable" class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Treatment&nbsp;1</th>
+                                    <th>Treatment&nbsp;2</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr> 
+                                    <td>Monday:</td>
+                                    <td id="dayoneTx1"></td>
+                                    <td id="dayoneTx2"></td>
+                                </tr>
+                                <tr> 
+                                    <td>Tuesday:</td>
+                                    <td id="daytwoTx1"></td>
+                                    <td id="daytwoTx2"></td>
+                                </tr>
+                                <tr> 
+                                    <td>Wednesday:</td>
+                                    <td id="daythreeTx1"></td>
+                                    <td id="daythreeTx2"></td>
+                                </tr>
+                                <tr> 
+                                    <td>Thursday:</td>
+                                    <td id="dayfourTx1"></td>
+                                    <td id="dayfourTx2"></td>
+                                </tr>
+                                <tr> 
+                                    <td>Friday:</td>
+                                    <td id="dayfiveTx1"></td>
+                                    <td id="dayfiveTx2"></td>
+                                </tr>
+                                <tr> 
+                                    <td>Saturday:</td>
+                                    <td id="daysixTx1"></td>
+                                    <td id="daysixTx2"></td>
+                                </tr>
+                                <tr> 
+                                    <td>Sunday:</td>
+                                    <td id="daysevenTx1"></td>
+                                    <td id="daysevenTx2"></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-
-                <div id="series-selector" class="series-selector">
-                    <h3>Select up to 2 treatment plans to overlay:</h3>
-                    <div class="series-options">
-                        <label>
-                            <input type="checkbox" id="series1" data-series="treatment1" checked>
-                            Treatment 1
-                        </label>
-                        <label>
-                            <input type="checkbox" id="series2" data-series="treatment2">
-                            Treatment 2
-                        </label>
+                <div class="options-panel">
+                    <div id="series-selector" class="series-selector">
+                        <h3>Select up to 2 treatment plans to overlay:</h3>
+                        <div class="series-options">
+                            <label>
+                                <input type="checkbox" id="series1" data-series="treatment1" checked>
+                                Treatment 1
+                            </label>
+                            <label>
+                                <input type="checkbox" id="series2" data-series="treatment2" checked>
+                                Treatment 2
+                            </label>
+                        </div>
                     </div>
-                </div>
-            </div>
-
-            <div class = "results-options-container">
-                <div class = "results-table">
-                    <h2>Numerical Results</h2>
-                    <table id = "results">
-                        <thead>
-                            <tr>
-                            <th>Metric</th>
-                            <th>Treatment&nbsp;1</th>
-                            <th>Treatment&nbsp;2</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            <tr> 
-                                <td>
-                                    Time averaged plasma concentration (mg / L): 
-                                </td>
-                                <td id="avgConcTx1"></td>
-                                <td id="avgConcTx2"></td>
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Effective clearance - average concentration (ml / min): 
-                                </td>
-                                <td id="avgClrTx1"></td>
-                                <td id="avgClrTx2"></td>
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Effective clearance - peak concentration (ml / min): 
-                                </td>
-                                <td id="peakClrTx1"></td>
-                                <td id="peakClrTx2"></td>            
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Time averaged clearance by dialysis (ml / min): 
-                                </td>
-                                <td id="avgClrDialTx1"></td>
-                                <td id="avgClrDialTx2"></td>  
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Time averaged clearance by kidney (ml / min): 
-                                </td>
-                                <td id="avgClrKidTx1"></td>
-                                <td id="avgClrKidTx2"></td>  
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Weekly Kt/V: 
-                                </td>
-                                <td id="ktvTx1"></td>
-                                <td id="ktvTx2"></td>  
-                            </tr>
-                        </tbody>
-                    </table>
-                    <br>
-                    <h3>Kt/V Calculated from Plasma UreaN at Noon on Each Day</h3>
-                    <table id = "ktvTable">
-                        <tbody>
-                            <tr> 
-                                <td>
-                                    Monday: 
-                                </td>
-                                <td id = "dayone">
-                                </td>
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Tuesday: 
-                                </td>
-                                <td id = "daytwo">
-                                </td>
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Wednesday: 
-                                </td>
-                                <td id = "daythree">
-                                </td>
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Thursday: 
-                                </td>
-                                <td id = "dayfour">
-                                </td>
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Friday: 
-                                </td>
-                                <td id = "dayfive">
-                                </td>
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Saturday: 
-                                </td>
-                                <td id = "daysix">
-                                </td>
-                            </tr>
-                            <tr> 
-                                <td>
-                                    Sunday: 
-                                </td>
-                                <td id = "dayseven">
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="graph-options">
-                    <h2>Graph options</h2>
-                    <form>
-                        <fieldset>
-                            <legend>Select what variable you are interested in:</legend>
-                            <label for="plasmaConcentration">
-                                <input type="radio" id="plasmaConcentration" name="variable" value="Plasma Concentration" checked>
-                                Plasma Concentration
-                            </label>
-                            <label for="dialysateConcentration">
-                                <input type="radio" id="dialysateConcentration" name="variable" value="Dialysate Concentration">
-                                Dialysate Concentration
-                            </label>
-                            <label for="volOfDialysate">
-                                <input type="radio" id="volOfDialysate" name="variable" value="Dialysate Volume">
-                                Dialysate Volume
-                            </label>
-                        </fieldset>
-                        <br>
-                        <fieldset>
-                            <legend>Select zoom options:</legend>
-                            <label for="zoomedIn">
-                                <input type="radio" id="zoomedIn" name="zoom" value="Zoomed In" checked>
-                                Zoomed In
-                            </label>
-                            <label for="zoomedOut">
-                                <input type="radio" id="zoomedOut" name="zoom" value="Zoomed Out">
-                                Zoomed Out (y = 0)
-                            </label>
-                        </fieldset>
-                        <br>
-                        <fieldset>
-                            <legend>Select add-ons:</legend>
-                            <label for="addAverage">
-                                <input type="radio" id="addAverage" name="add" value="Add Avg" checked>
-                                Include Average
-                            </label>
-                            <label for="addAverage">
-                                <input type="radio" id="addAverage" name="add" value="No Avg">
-                                Exclude Average
-                            </label>
-                        </fieldset>
-                    </form>
+                    <div class="graph-options">
+                        <h2>Graph options</h2>
+                        <form>
+                            <fieldset>
+                                <legend>Select what variable you are interested in:</legend>
+                                <label for="plasmaConcentration">
+                                    <input type="radio" id="plasmaConcentration" name="variable" value="Plasma Concentration" checked>
+                                    Plasma Concentration
+                                </label>
+                                <label for="dialysateConcentration">
+                                    <input type="radio" id="dialysateConcentration" name="variable" value="Dialysate Concentration">
+                                    Dialysate Concentration
+                                </label>
+                                <label for="dialysateVolume">
+                                    <input type="radio" id="dialysateVolume" name="variable" value="Dialysate Volume">
+                                    Dialysate Volume
+                                </label>
+                            </fieldset>
+                            <fieldset>
+                                <legend>Select zoom options:</legend>
+                                <label for="zoomIn">
+                                    <input type="radio" id="zoomIn" name="zoom" value="Zoomed In" checked>
+                                    Zoomed In
+                                </label>
+                                <label for="zoomOut">
+                                    <input type="radio" id="zoomOut" name="zoom" value="Zoomed Out">
+                                    Zoomed Out (y = 0)
+                                </label>
+                            </fieldset>
+                            <fieldset>
+                                <legend>Select add-ons:</legend>
+                                <label for="includeAverage">
+                                    <input type="radio" id="includeAverage" name="add" value="Include Avg" checked>
+                                    Include Average
+                                </label>
+                                <label for="excludeAverage">
+                                    <input type="radio" id="excludeAverage" name="add" value="Exclude Avg">
+                                    Exclude Average
+                                </label>
+                            </fieldset>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div> 

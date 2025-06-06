@@ -1,23 +1,3 @@
-h1 {
-    font-family: "Manrope", sans-serif;
-    font-size: 40px; /* Increase the font size */
-    font-weight: 700;
-    color: #000000; /* Change the text color */
-    line-height: 48px;
-    margin: 5px;
-    margin-bottom: 20px;
-
-}
-
-h2 {
-    font-family: "Manrope", sans-serif;
-    font-size: 30px; /* Increase the font size */
-    font-weight: 700;
-    color: #000000; /* Change the text color */
-    margin: 5px;
-    margin-bottom:10px;
-}
-
 body {
     font-family: "Manrope", sans-serif;
     font-weight: 400;
@@ -25,9 +5,28 @@ body {
     padding: 20px;
 }
 
+h1 {
+    font-family: "Manrope", sans-serif;
+    font-size: 40px;
+    font-weight: 700;
+    color: #000000;
+    line-height: 48px;
+    margin: 5px;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-family: "Manrope", sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: #000000;
+    margin: 5px;
+    margin-bottom: 10px;
+}
+
 .input-container-dow {
     margin-bottom: 5px;
-} 
+}
 
 .days-of-week {
     display: flex;
@@ -44,23 +43,23 @@ body {
 }
 
 .checkbox-label input[type="checkbox"] {
-    margin-right: 14%; /* Adds space between the checkbox and label */
-    transform: scale(1.5)
+    margin-right: 14%;
+    transform: scale(1.5);
 }
 
 .container {
     display: grid;
-    grid-template-columns: 1fr 2fr; /* Divide into two-thirds and one-third */
-    grid-gap: 20px; /* Add spacing between columns */
+    grid-template-columns: 1fr 2fr;
+    grid-gap: 20px;
 }
 
 .container .input-container {
-    grid-column: span 1; /* Each input container spans one column */
+    grid-column: span 1;
 }
 
 .input-container-row {
-    display: flex; /* Use flexbox to create a row layout */
-    align-items: center; /* Align items vertically */
+    display: flex;
+    align-items: center;
     margin-bottom: 2px;
     margin-left: 10px;
     font-size: 15px;
@@ -68,13 +67,13 @@ body {
 }
 
 .input-container-row label {
-    flex: 0 0 50%; /* Set width for the label */
-    margin-right: 15px; /* Add spacing between label and input */
+    flex: 0 0 50%;
+    margin-right: 15px;
 }
 
 .input-container-row input,
 .input-container-row textarea {
-    flex: 1; /* Expand input to fill remaining space */
+    flex: 1;
     padding: 2px;
     font-size: 15px;
     font-family: "Manrope", sans-serif;
@@ -98,8 +97,8 @@ label {
 }
 
 .solute-container {
-    display: flex; /* Use flexbox to create a row layout */
-    align-items: center; /* Align items vertically */
+    display: flex;
+    align-items: center;
     margin-bottom: 2px;
     margin-left: 10px;
     font-size: 15px;
@@ -109,52 +108,63 @@ label {
 
 #Exchange input[type="number"], 
 #Exchange select {
-    box-sizing: border-box; /* Include padding and border in width calculation */
-    width: 100%; /* Make inputs and select menus fill the entire cell */
-    padding: 8px; /* Example padding */
-    font-size: 15px; /* Example font size */
-    border: 1px solid #ccc; /* Example border */
-    border-radius: 5px; /* Example border radius */
+    box-sizing: border-box;
+    width: 100%;
+    padding: 8px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
     font-family: "Manrope", sans-serif;
 }
 
-/* Optional: Adjust specific styles as needed */
 #Exchange th,
 #Exchange td {
-    padding: 5px; /* Adjust padding for table cells */
-    text-align: center; /* Center align text */
-    vertical-align: middle; /* Align vertically centered */
+    padding: 5px;
+    text-align: center;
+    vertical-align: middle;
     font-size:15px;
 }
 
 .results-options-container {
     display: flex;
     justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
 }
 
-.results-table{
-    width: 58%;
-    text-align:left;
+.results-panel {
+    flex: 0 0 60%;
+    max-width: 60%;
 }
 
-.graph-options{
-    width:38%
+.options-panel {
+    flex: 0 0 40%;
+    max-width: 40%;
+    margin-left: 0;
+    margin-right: 0;
 }
 
+.results-table {
+    width: 100%;
+    text-align: left;
+}
 
+.graph-options {
+    width: 100%;
+}
 
 #results th,
-#results td {
-    padding: 5px; /* Adjust padding for table cells */
-    text-align: left; /* Center align text */
-    vertical-align: middle; /* Align vertically centered */
-    font-size:15px;
+#results td,
+#ktvTable th,
+#ktvTable td {
+    padding: 5px;
+    text-align: left;
+    vertical-align: middle;
+    font-size: 15px;
     margin-left: 0px;
 }
 
-
 input[type="number"],
-
 textarea {
     width: 100%;
     padding: 10px;
@@ -196,18 +206,17 @@ table tr {
 table input[type="text"],
 table input[type="number"],
 table textarea {
-    width: 100%; /* Adjust the width as needed */
-    box-sizing: border-box; /*Include padding and border in the width calculation */
+    width: 100%;
+    box-sizing: border-box;
     height: 40px;
-
 }
-/* Adjust the width of the select element */
+
 table select {
-    width: 75%; /* Take up the full width of the td */
+    width: 75%;
 }
 
 button {
-    padding: 13px 30px; 
+    padding: 13px 30px;
     font-size: 16px;
     background-color: #264653;
     color: #fff;
@@ -218,6 +227,7 @@ button {
     margin-right: 15px;
     margin-top: 20px;
 }
+
 button:hover {
     background-color: #264653;
 }
@@ -229,6 +239,7 @@ button:hover {
     justify-content: center;
     align-items: center;
 }
+
 #chartCanvas {
     width: 75%;
     height: 75%;
@@ -236,18 +247,17 @@ button:hover {
 
 .series-selector {
     margin: 1.5rem 0;
-  }
-  
+}
+
 .series-selector h3 {
     margin-bottom: 0.5rem;
     font-size: 1.1rem;
 }
-  
-  /* make the labels go side by side */
+
 .series-options {
     display: flex;
     flex-direction: row;
-    gap: 2.5rem;          /* space between boxes */
+    gap: 2.5rem;
 }
 
 .series-options label {
@@ -265,25 +275,136 @@ button:hover {
 }
 
 .reset-btn {
-  /* visual */
-  background: #264653;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
+    background: #264653;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    width: 2.4rem;
+    height: 1.8rem;
+    padding: 0;
+    font-size: 1rem;
+    font-family: "Manrope", sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
 
-  /* size  ──────────────────────────────────────── */
-  width: 2.4rem;          /* a bit wider than the original ↺ button */
-  height: 1.8rem;         /* same height as your inputs */
-  padding: 0;             /* keeps it narrow */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 
-  /* text / icon */
-  font-size: 1rem;        /* ↺ stays crisp */
-  font-family: "Manrope", sans-serif;
+input[type="number"] {
+    -moz-appearance: textfield;
+}
 
-  /* alignment */
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
 
-  cursor: pointer;
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content h2 {
+    color: #2A9D8F;
+    margin-bottom: 20px;
+}
+
+.modal-content p {
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.modal-button {
+    background-color: #2A9D8F;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.modal-button:hover {
+    background-color: #238b7f;
+}
+
+/* Treatment 2 selected styles */
+body.treatment2-selected h1,
+body.treatment2-selected h2,
+body.treatment2-selected label,
+body.treatment2-selected .input-container-row,
+body.treatment2-selected .solute-container,
+body.treatment2-selected #Exchange th,
+body.treatment2-selected #Exchange td,
+body.treatment2-selected #Exchange input,
+body.treatment2-selected #Exchange select,
+body.treatment2-selected .input-container h2:not(.graphical-results-header):not(.numerical-results-header) {
+    color: #562c2c;
+}
+
+/* Keep main title, results sections, and selection controls black */
+body.treatment2-selected h1:first-of-type,
+body.treatment2-selected .results-options-container,
+body.treatment2-selected .series-selector,
+body.treatment2-selected .series-options,
+body.treatment2-selected .display-options-table,
+body.treatment2-selected #results th,
+body.treatment2-selected #results td,
+body.treatment2-selected #ktvTable th,
+body.treatment2-selected #ktvTable td,
+body.treatment2-selected .chart-container,
+body.treatment2-selected .results-options-container h2,
+body.treatment2-selected .results-options-container h3,
+body.treatment2-selected .graph-options,
+body.treatment2-selected input[name="variable"],
+body.treatment2-selected input[name="zoom"],
+body.treatment2-selected input[name="add"],
+body.treatment2-selected input[name="variable"] + label,
+body.treatment2-selected input[name="zoom"] + label,
+body.treatment2-selected input[name="add"] + label,
+body.treatment2-selected input[name="displayTreatmentInfo"] + label,
+body.treatment2-selected .input-container h2,
+body.treatment2-selected .series-selector h3,
+body.treatment2-selected .series-options label,
+body.treatment2-selected .display-options-table h3,
+body.treatment2-selected .display-options-table label,
+body.treatment2-selected .graph-options label,
+body.treatment2-selected .graph-options input + label,
+body.treatment2-selected .graph-options h3,
+body.treatment2-selected .graphical-results-header,
+body.treatment2-selected .numerical-results-header {
+    color: #000000;
+}
+
+/* Ensure graph options and its header are left-aligned */
+.graph-options,
+.graph-options h2,
+.graph-options h3,
+.graph-options label {
+    text-align: left !important;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+body.treatment2-selected .graph-options h2 {
+    color: #000 !important;
 }

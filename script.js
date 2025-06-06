@@ -56,6 +56,12 @@ function setupEventListeners() {
     .querySelectorAll('input[name="displayTreatmentInfo"]')
     .forEach(radio => radio.addEventListener('change', () => {
         const key = radio.value;
+        // Toggle color mode based on selected prescription
+        if (key === 'treatment2') {
+            document.body.classList.add('treatment2-selected');
+        } else {
+            document.body.classList.remove('treatment2-selected');
+        }
         const snap = savedInputs[key];
         if (!snap) return;
 
@@ -70,11 +76,8 @@ document.addEventListener("DOMContentLoaded", () => {
     setupEventListeners();
     // Call the function immediately to populate defaults
     populateSoluteValues();
-    
-    // Check if user has already accepted the disclaimer
-    if (!localStorage.getItem('disclaimerAccepted')) {
-        showDisclaimer();
-    }
+    // Always show disclaimer on page load
+    showDisclaimer();
 });
 
 
@@ -1061,9 +1064,9 @@ function updateHeaders(treatmentKey) {
 function showDisclaimer() {
     const modal = document.getElementById('disclaimerModal');
     modal.style.display = 'block';
-    
-    document.getElementById('acceptDisclaimer').addEventListener('click', () => {
+    const btn = document.getElementById('acceptDisclaimer');
+    // Remove any previous event listeners to avoid stacking
+    btn.onclick = function() {
         modal.style.display = 'none';
-        localStorage.setItem('disclaimerAccepted', 'true');
-    });
+    };
 }

@@ -5,6 +5,25 @@ body {
     padding: 20px;
 }
 
+h1,
+h2,
+h3,
+label,
+.input-container-row,
+.solute-container,
+.series-selector,
+.series-options,
+.display-options-table,
+.graph-options,
+.results-options-container,
+.results-table,
+#results th,
+#results td,
+#ktvTable th,
+#ktvTable td {
+    color: #000;
+}
+
 h1 {
     font-family: "Manrope", sans-serif;
     font-size: 40px;

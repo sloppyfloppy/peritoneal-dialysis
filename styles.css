@@ -323,7 +323,7 @@ input[type="number"] {
 }
 
 .modal-content h2 {
-    color: #2A9D8F;
+    color: #224653;
     margin-bottom: 20px;
 }
 
@@ -333,7 +333,7 @@ input[type="number"] {
 }
 
 .modal-button {
-    background-color: #2A9D8F;
+    background-color: #224653;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -344,7 +344,7 @@ input[type="number"] {
 }
 
 .modal-button:hover {
-    background-color: #238b7f;
+    background-color: #18334a;
 }
 
 /* Treatment 2 selected styles */

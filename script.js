@@ -869,7 +869,7 @@ function redrawBothLines() {
     const avgRadio    = document.querySelector('input[name="add"]:checked').value;
   
     const zoomVal = zoomRadio === "Zoomed Out" ? 0 : 'auto';
-    const showAvg = avgRadio === "Add Avg";
+    const showAvg = avgRadio === "Include Avg";
   
     let array1, array2, yLabel;
     switch (selectedVar) {

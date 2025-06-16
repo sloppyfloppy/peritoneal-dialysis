@@ -265,7 +265,7 @@ button:hover {
 }
 
 .series-selector {
-    margin: 1.5rem 0;
+    margin: 12px 0 0 0;
 }
 
 .series-selector h3 {
@@ -426,4 +426,28 @@ body.treatment2-selected .numerical-results-header {
 
 body.treatment2-selected .graph-options h2 {
     color: #000 !important;
+}
+
+.selects-row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.display-options-table,
+.series-selector {
+    margin: 0;
+}
+
+.selects-and-results-row {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.left-col, .right-col {
+    flex: 1 1 0;
+    min-width: 300px;
 }

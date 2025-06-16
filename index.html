@@ -56,7 +56,7 @@
             <div id="daysError" class="error_left"></div>
         </div>
     <div class="container">
-        <div class="input-container">
+        <form id="pdCalculatorForm" class="input-container">
             <h2>Patient Data</h2>
             <div class="input-container-row">
                 <label for="age">Age:</label>
@@ -102,20 +102,20 @@
             <div>
                 <div class="input-container-row">
                     <label for="mtac">MTAC:</label>                    
-                    <input type="number" id="mtac" class = "js-wipe">
-                    <button type="button" class="reset-btn" onclick="resetOne('mtac')">↺</button>   
+                    <input type="number" id="mtac" class="js-wipe">
+                    <button type="button" class="reset-btn" data-reset="mtac">↺</button>   
                     <div id="mtacError" class="error"></div>          
                 </div>
                 <div class="input-container-row">
                     <label for="volume">Volume of Distribution(L):</label>
-                    <input type="number" id="volume" class = "js-wipe">
-                    <button type="button" class="reset-btn" onclick="resetOne('volume')">↺</button>   
+                    <input type="number" id="volume" class="js-wipe">
+                    <button type="button" class="reset-btn" data-reset="volume">↺</button>   
                     <div id="volumeError" class="error"></div>          
                 </div>
                 <div class="input-container-row">
                     <label for="gen">Generation (mg/min ureaN or other): </label>
-                    <input type="number" id="gen" class = "js-wipe">
-                    <button type="button" class="reset-btn" onclick="resetOne('gen')">↺</button>   
+                    <input type="number" id="gen" class="js-wipe">
+                    <button type="button" class="reset-btn" data-reset="gen">↺</button>   
                     <div id="genError" class="error"></div>          
                 </div>
                 <div class="input-container-row">
@@ -238,14 +238,12 @@
             </table>
             <div id="timeError" class="error_left"></div>
 
-        <div class="input-container">
-            <button id = "run-tx1" onclick="validateForm()">Run Treatment 1</button>
-            <button id = "run-tx2" onclick="validateForm()">Run Treatment 2</button>
-            <button onclick="defaultInput()">Default</button>
-        </div>
-
-
-        </div>
+            <div class="input-container">
+                <button type="button" id="run-tx1">Run Treatment 1</button>
+                <button type="button" id="run-tx2">Run Treatment 2</button>
+                <button type="button" id="defaultInput">Default</button>
+            </div>
+        </form>
         <div class="input-container">
             <h2 class="graphical-results-header">Graphical Results</h2>
             <body>
@@ -253,8 +251,8 @@
                     <canvas id="chartCanvas"></canvas>
                 </div>
             </body>
-            <div class="results-options-container">
-                <div class="results-panel">
+            <div class="selects-and-results-row">
+                <div class="left-col">
                     <div id="prescription-display" class="display-options-table">
                         <h3>Select prescription to display:</h3>
                         <div class="series-options">
@@ -373,7 +371,7 @@
                         </table>
                     </div>
                 </div>
-                <div class="options-panel">
+                <div class="right-col">
                     <div id="series-selector" class="series-selector">
                         <h3>Select up to 2 treatment plans to overlay:</h3>
                         <div class="series-options">

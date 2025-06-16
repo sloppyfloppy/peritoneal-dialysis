@@ -20,26 +20,45 @@ const savedInputs = {
 
 function setupEventListeners() {
     // Attach change event to all solute radio buttons
-
     document.querySelectorAll('input[name="solute"]').forEach(radio => {
         radio.addEventListener('change', () => {
             populateSoluteValues();
         });
     });
 
+    // Add event listeners for reset buttons
+    document.querySelectorAll('.reset-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const fieldId = button.getAttribute('data-reset');
+            resetOne(fieldId);
+        });
+    });
+
+    // Add event listener for default input button
+    document.getElementById('defaultInput').addEventListener('click', defaultInput);
+
     document.getElementById('weight').addEventListener('input', populateSoluteValues);
     document.getElementById('height').addEventListener('input', populateSoluteValues);
     document.getElementById('sex').addEventListener('change', populateSoluteValues);
     document.getElementById('pna').addEventListener('input', populateSoluteValues);
 
-    document.getElementById('run-tx1').addEventListener('click', () => {
+    // Form submission handlers
+    document.getElementById('run-tx1').addEventListener('click', (e) => {
+        e.preventDefault();
         if (!validateForm()) return;
         handleTreatmentToggle('treatment1');
     });
       
-    document.getElementById('run-tx2').addEventListener('click', () => {
+    document.getElementById('run-tx2').addEventListener('click', (e) => {
+        e.preventDefault();
         if (!validateForm()) return;
         handleTreatmentToggle('treatment2');
+    });
+
+    // Add form submit handler
+    document.getElementById('pdCalculatorForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!validateForm()) return;
     });
 
     [
@@ -65,11 +84,11 @@ function setupEventListeners() {
         const snap = savedInputs[key];
         if (!snap) return;
 
-        clearDisplay();
+        // Don't clear the display when switching treatments
+        // clearDisplay();
         displayPrescription(snap);
         updateHeaders(key);
     }));
-
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -168,23 +187,27 @@ function populateSoluteValues() {
 
 function clearDisplay () {
     document.querySelectorAll('.js-wipe').forEach(el => {
+        // Skip daily exchange table inputs
+        if (el.id && (el.id.startsWith('exVolume') || el.id.startsWith('exTime') || el.id.startsWith('exScheme'))) {
+            return;
+        }
 
-    // Text / number / hidden inputs, textareas
-    if (el instanceof HTMLInputElement ||
-        el instanceof HTMLTextAreaElement) {
-        el.value   = '';
-        el.checked = false;              // un-tick any radios / checkboxes
-        return;
-    }
+        // Text / number / hidden inputs, textareas
+        if (el instanceof HTMLInputElement ||
+            el instanceof HTMLTextAreaElement) {
+            el.value   = '';
+            el.checked = false;              // un-tick any radios / checkboxes
+            return;
+        }
 
-    // Dropdowns
-    if (el instanceof HTMLSelectElement) {
-        el.selectedIndex = 0;           // reset to the first <option>
-        return;
-    }
+        // Dropdowns
+        if (el instanceof HTMLSelectElement) {
+            el.selectedIndex = 0;           // reset to the first <option>
+            return;
+        }
 
-    // Everything else (tables, divs, canvases, …)
-    el.innerHTML = '';
+        // Everything else (tables, divs, canvases, …)
+        el.innerHTML = '';
     });
 }
 
@@ -539,39 +562,44 @@ function displayValues(age, weight, height, sex, volume, volumeData, timeData, s
 
 
 function displayPrescription(snap) {
-  // put saved values straight into the form ------------------------
-    document.getElementById('age').value    = snap.age ?? '';
-    document.getElementById('weight').value = snap.weight ?? '';
-    document.getElementById('height').value = snap.height ?? '';
-    document.getElementById('sex').value    = snap.sex ?? '';
+    // Only update specific fields, don't clear everything
+    if (snap.age) document.getElementById('age').value = snap.age;
+    if (snap.height) document.getElementById('height').value = snap.height;
+    if (snap.weight) document.getElementById('weight').value = snap.weight;
+    if (snap.sex) document.getElementById('sex').value = snap.sex;
+    if (snap.pna) document.getElementById('pna').value = snap.pna;
+    if (snap.kru) document.getElementById('kru').value = snap.kru;
+    if (snap.mtac) document.getElementById('mtac').value = snap.mtac;
+    if (snap.volume) document.getElementById('volume').value = snap.volume;
+    if (snap.gen) document.getElementById('gen').value = snap.gen;
+    if (snap.m_fluid_removal) document.getElementById('m_fluid_removal').value = snap.m_fluid_removal;
+    if (snap.a_fluid_removal) document.getElementById('a_fluid_removal').value = snap.a_fluid_removal;
 
-    document.getElementById('mtac').value   = snap.mtac   ?? '';
-    document.getElementById('volume').value = snap.volume ?? '';
-    document.getElementById('gen').value    = snap.gen    ?? '';
-
-    document.getElementById('kru').value    = snap.kru    ?? '';
-    document.getElementById('pna').value    = snap.pna    ?? '';
-
-    document.getElementById('m_fluid_removal').value    = snap.m_fluid_removal    ?? '';
-    document.getElementById('a_fluid_removal').value    = snap.a_fluid_removal    ?? '';
-
-    for (var i = 0; i < volumeData.length; i++) {
-        document.getElementById('exVolume ' + (i + 1)).value = snap.volumeData[i];
-        document.getElementById('exTime ' + (i + 1)).value = snap.timeData[i];
-        document.getElementById('exScheme ' + (i + 1)).value = snap.schemeData[i];
-    }  
-
-    document.querySelectorAll('input[name="day"]').forEach(chk => {
-        chk.checked = snap.days.includes(chk.value);
-    });
-    
-    const defaultSolute = document.querySelector('input[name="solute"][value="' + snap.solute + '"]');
-    if (defaultSolute) {
-        defaultSolute.checked = true;
-        populateSoluteValues();
+    // Update solute radio buttons
+    if (snap.solute) {
+        const soluteRadio = document.querySelector(`input[name="solute"][value="${snap.solute}"]`);
+        if (soluteRadio) soluteRadio.checked = true;
     }
 
-    populateSoluteValues();
+    // Update day checkboxes
+    if (snap.days) {
+        document.querySelectorAll('input[name="day"]').forEach(checkbox => {
+            checkbox.checked = snap.days.includes(checkbox.value);
+        });
+    }
+
+    // Update daily exchange table
+    if (snap.volumeData && snap.timeData && snap.schemeData) {
+        for (let i = 1; i <= 7; i++) {
+            const volumeInput = document.getElementById(`exVolume ${i}`);
+            const timeInput = document.getElementById(`exTime ${i}`);
+            const schemeSelect = document.getElementById(`exScheme ${i}`);
+            
+            if (volumeInput && snap.volumeData[i-1]) volumeInput.value = snap.volumeData[i-1];
+            if (timeInput && snap.timeData[i-1]) timeInput.value = snap.timeData[i-1];
+            if (schemeSelect && snap.schemeData[i-1]) schemeSelect.value = snap.schemeData[i-1];
+        }
+    }
 }
 
 
@@ -969,8 +997,6 @@ function redrawBothLines() {
 
 
 async function handleTreatmentToggle(seriesKey) {
-    const cb = document.getElementById(seriesKey);
-
     // Toggle treatment2-selected class on body
     if (seriesKey === 'treatment2') {
         document.body.classList.add('treatment2-selected');
@@ -979,7 +1005,7 @@ async function handleTreatmentToggle(seriesKey) {
     }
 
     const inputs = gatherFormInputs();
-    savedInputs[seriesKey] = { ...inputs};
+    savedInputs[seriesKey] = { ...inputs };
 
     console.log("SAVED INPUTS")
     console.log(inputs);
@@ -987,13 +1013,13 @@ async function handleTreatmentToggle(seriesKey) {
     const {
         plasmaConcentration,
         volumeofDistribution,
-        peakConcentration,         // you can omit this if you never plot peaks
+        peakConcentration,
         dialysateConcentration,
         volDialysate,
         gen,
         plasmaToDialysate,
         excretion
-      } = await pdCalculator(
+    } = await pdCalculator(
         inputs.kru,
         inputs.solute,
         inputs.mtac,
@@ -1008,9 +1034,8 @@ async function handleTreatmentToggle(seriesKey) {
         inputs.totATime,
         inputs.totMTime,
         inputs.totalExchangeTime,
-        inputs.gen    // make sure gatherFormInputs returns this too
-      );
-    
+        inputs.gen
+    );
 
     treatments[seriesKey] = {
         plasmaConcentration,
@@ -1022,13 +1047,8 @@ async function handleTreatmentToggle(seriesKey) {
 
     redrawBothLines();
 
-    if (seriesKey == "treatment1"){
-        txt = 1; 
-    }
-    else{
-        txt = 2;
-    }
-    updateNumerical(txt, plasmaConcentration, peakConcentration, gen, plasmaToDialysate, inputs.kru, inputs.volume, inputs.solute, excretion);
+    const treatmentNum = seriesKey === "treatment1" ? 1 : 2;
+    updateNumerical(treatmentNum, plasmaConcentration, peakConcentration, gen, plasmaToDialysate, inputs.kru, inputs.volume, inputs.solute, excretion);
     
     // Update headers for the current treatment
     updateHeaders(seriesKey);
